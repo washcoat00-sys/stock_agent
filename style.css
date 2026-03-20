@@ -1,49 +1,354 @@
+:root {
+    --primary-color: #0052cc;
+    --primary-hover: #0747a6;
+    --text-color: #172b4d;
+    --text-light: #5e6c84;
+    --bg-color: #f4f5f7;
+    --white: #ffffff;
+    --border-color: #dfe1e6;
+    --success: #00875a;
+    --warning: #ff991f;
+    --danger: #de350b;
+}
+
+* {
+    box-sizing: border-box;
+}
+
 body {
-    font-family: sans-serif;
-    margin: 0;
-    background-color: #f0f2f5;
-}
-
-header {
-    background-color: #ffffff;
-    padding: 20px;
-    text-align: center;
-    border-bottom: 1px solid #ddd;
-}
-
-nav {
-    background-color: #333;
-    color: white;
-    padding: 10px;
-}
-
-nav ul {
-    list-style-type: none;
+    font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     margin: 0;
     padding: 0;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    line-height: 1.6;
+}
+
+/* 상단바 (Top Bar) */
+.top-bar {
+    background-color: var(--white);
+    padding: 15px 30px;
     display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 700;
+    font-size: 20px;
+    color: var(--primary-color);
+}
+
+.logo svg {
+    width: 24px;
+    height: 24px;
+}
+
+.search-container {
+    display: flex;
+    gap: 10px;
+    flex-grow: 1;
+    max-width: 600px;
+    margin: 0 20px;
+}
+
+#stock-input {
+    flex-grow: 1;
+    padding: 10px 16px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    font-size: 15px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+#stock-input:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(0, 82, 204, 0.2);
+}
+
+button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background-color: var(--primary-color);
+    color: var(--white);
+    border: none;
+    border-radius: 6px;
+    font-size: 15px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.2s;
+}
+
+button:hover {
+    background-color: var(--primary-hover);
+}
+
+button:disabled {
+    background-color: #a5adba;
+    cursor: not-allowed;
+}
+
+#download-pdf-btn {
+    background-color: #42526e;
+}
+
+#download-pdf-btn:hover:not(:disabled) {
+    background-color: #253858;
+}
+
+/* 공통 숨김 처리 */
+.hidden {
+    display: none !important;
+}
+
+/* 초기 빈 상태 */
+#empty-state {
+    text-align: center;
+    margin-top: 150px;
+    color: var(--text-light);
+}
+
+.empty-icon {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 20px;
+    color: var(--border-color);
+}
+
+#empty-state h2 {
+    font-size: 24px;
+    color: var(--text-color);
+    margin-bottom: 10px;
+}
+
+.suggestion {
+    margin-top: 20px;
+    font-size: 14px;
+}
+
+/* 로딩 오버레이 */
+#loading-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(255, 255, 255, 0.95);
+    display: flex;
+    flex-direction: column;
     justify-content: center;
+    align-items: center;
+    z-index: 1000;
 }
 
-nav ul li {
-    margin: 0 15px;
+.spinner {
+    border: 4px solid var(--bg-color);
+    border-top: 4px solid var(--primary-color);
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 1s linear infinite;
+    margin-bottom: 24px;
 }
 
-nav ul li a {
-    color: white;
-    text-decoration: none;
-    font-size: 16px;
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }
 
-nav ul li a:hover {
-    text-decoration: underline;
+#loading-overlay p {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-color);
+    margin: 5px 0;
 }
 
-main {
-    padding: 20px;
-    max-width: 1200px;
-    margin: 20px auto;
-    background-color: #ffffff;
+#loading-overlay .sub-text {
+    font-size: 14px;
+    color: var(--text-light);
+    font-weight: normal;
+}
+
+/* 리포트 스타일 */
+#report-container {
+    max-width: 900px;
+    margin: 40px auto;
+    background-color: var(--white);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
     border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    overflow: hidden;
+}
+
+#pdf-content {
+    padding: 60px 80px;
+    background-color: var(--white);
+}
+
+.report-header {
+    border-bottom: 3px solid var(--primary-color);
+    padding-bottom: 30px;
+    margin-bottom: 40px;
+}
+
+.report-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    color: var(--text-light);
+    margin-bottom: 20px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 500;
+}
+
+.company-name {
+    font-size: 38px;
+    margin: 0 0 8px 0;
+    color: var(--text-color);
+    font-weight: 700;
+    letter-spacing: -0.5px;
+}
+
+.company-ticker {
+    font-size: 18px;
+    color: var(--text-light);
+    margin-bottom: 35px;
+    font-weight: 500;
+}
+
+.investment-summary {
+    display: flex;
+    gap: 40px;
+    background-color: #fafbfc;
+    padding: 24px 30px;
+    border-radius: 6px;
+    border-left: 4px solid var(--primary-color);
+}
+
+.rating-box, .price-box {
+    display: flex;
+    flex-direction: column;
+}
+
+.rating-label, .price-label {
+    font-size: 13px;
+    color: var(--text-light);
+    margin-bottom: 6px;
+    font-weight: 500;
+}
+
+.rating-value, .price-value {
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--text-color);
+    line-height: 1.2;
+}
+
+.rating-value.buy { color: var(--success); }
+.rating-value.sell { color: var(--danger); }
+.rating-value.hold { color: var(--warning); }
+
+.report-section {
+    margin-bottom: 45px;
+    page-break-inside: avoid;
+}
+
+.report-section h2 {
+    font-size: 22px;
+    color: var(--primary-color);
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 12px;
+    margin-bottom: 20px;
+    font-weight: 700;
+}
+
+.section-content {
+    font-size: 15px;
+    color: #344563;
+    text-align: justify;
+    line-height: 1.7;
+}
+
+.section-content p {
+    margin-bottom: 16px;
+}
+
+.section-content strong {
+    color: var(--text-color);
+}
+
+.section-content ul {
+    margin-top: 10px;
+    padding-left: 24px;
+}
+
+.section-content li {
+    margin-bottom: 10px;
+}
+
+.chart-container {
+    width: 100%;
+    max-width: 600px;
+    margin: 30px auto;
+    background: #fff;
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+}
+
+.report-footer {
+    margin-top: 70px;
+    padding-top: 25px;
+    border-top: 1px solid var(--border-color);
+    font-size: 12px;
+    color: var(--text-light);
+    text-align: center;
+    line-height: 1.5;
+}
+
+/* 모바일 반응형 */
+@media (max-width: 768px) {
+    .top-bar {
+        flex-direction: column;
+        gap: 15px;
+        padding: 15px;
+    }
+    .search-container {
+        width: 100%;
+        max-width: none;
+        margin: 0;
+    }
+    #download-pdf-btn {
+        width: 100%;
+        justify-content: center;
+    }
+    #report-container {
+        margin: 15px;
+    }
+    #pdf-content {
+        padding: 30px 20px;
+    }
+    .investment-summary {
+        flex-direction: column;
+        gap: 20px;
+        padding: 20px;
+    }
+}
+
+/* 인쇄 및 PDF 내보내기 최적화 */
+@media print {
+    body { background-color: var(--white); }
+    .top-bar { display: none !important; }
+    #report-container { box-shadow: none; margin: 0; max-width: 100%; }
+    #pdf-content { padding: 0; }
+    .report-section { page-break-inside: avoid; }
+    .chart-container { page-break-inside: avoid; }
+    @page { margin: 15mm; }
 }
