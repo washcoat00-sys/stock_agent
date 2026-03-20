@@ -1,260 +1,139 @@
-// AI Stock Analyst - Deep Dive & Thematic Logic
+// AI Stock Analyst - Smart Dynamic Analysis Engine (v2.0)
 
 let financialChartInstance = null;
 
 // ========================================== 
-// 1. 테마 및 상황별 추천 종목 DB (각 8개 종목)
+// 1. 글로벌 종목 유니버스 (Stock Universe)
+// 각 종목은 고유 태그를 가지며 상황 분석 시 점수 산출에 사용됨
 // ========================================== 
-const themeDB = [
-    {
-        keywords: ['금리 인하', '금리인하', '유동성', 'rate cut', '비둘기', '파월'],
-        themeName: '금리 인하 수혜주 (성장주 및 배당주)',
-        description: '기준금리 인하 시 자금 조달 비용이 감소하여 고정비 비중이 높은 성장주(기술주)의 미래 가치가 높아집니다. 또한, 상대적으로 배당 매력이 부각되는 리츠(REITs)나 고배당주로 자금이 유입될 수 있습니다.',
-        recommendations: [
-            { ticker: 'AAPL', name: 'Apple Inc.', reason: '저금리 환경에서 풍부한 유동성을 바탕으로 한 자사주 매입 강화 및 밸류에이션 리레이팅 기대.', rating: 'BUY' },
-            { ticker: 'NAVER', name: 'NAVER', reason: '대표적인 국내 플랫폼 성장주로, 금리 인하 시 미래 현금흐름의 현재 가치 할인율이 낮아져 밸류에이션 회복 수혜.', rating: 'BUY' },
-            { ticker: 'O', name: 'Realty Income', reason: '대표적인 월배당 상업용 리츠(REITs)로, 조달 비용 감소 및 시중 금리 하락 시 배당 수익률 매력이 크게 부각됨.', rating: 'BUY' },
-            { ticker: 'NEE', name: 'NextEra Energy', reason: '세계 최대의 신재생 에너지 유틸리티 기업. 자본 집약적 산업 특성상 금리 인하 시 이자 비용 절감 및 프로젝트 수익성 급증.', rating: 'BUY' },
-            { ticker: 'T', name: 'AT&T', reason: '안정적인 현금흐름을 바탕으로 한 고배당 통신주. 채권 수익률 하락 시 대체 투자처로 기관 자금 유입 가능성 높음.', rating: 'HOLD' },
-            { ticker: '035720.KS', name: '카카오', reason: '매크로 환경 악화로 소외되었으나, 금리 인하 시 성장 둔화 우려 해소 및 플랫폼 사업 이익 턴어라운드 기대.', rating: 'HOLD' },
-            { ticker: 'IWF', name: 'Russell 1000 Growth ETF', reason: '미국 대형 우량 성장주 전반에 분산 투자하여, 유동성 장세 진입 시 지수 대비 초과 수익(Alpha) 달성 목표.', rating: 'BUY' },
-            { ticker: 'TLT', name: '20+ Year Treasury Bond ETF', reason: '미국 장기 국채에 투자. 기준금리 인하 사이클 본격화 시 국채 금리 하락(채권 가격 상승)에 따른 직접적인 자본 차익 수혜.', rating: 'BUY' }
-        ]
-    },
-    {
-        keywords: ['ai', '인공지능', '반도체', 'hbm', '슈퍼사이클', '온디바이스', '소프트웨어', '데이터센터'],
-        themeName: 'AI 패러다임 전환 및 반도체 슈퍼사이클',
-        description: '생성형 AI의 발전으로 데이터센터 향 고성능 AI 칩 및 HBM(고대역폭메모리) 수요가 폭증하고 있습니다. 향후 스마트폰과 PC에 AI가 탑재되는 \'온디바이스 AI\' 시대로 접어들며 반도체 및 소프트웨어 기업들의 구조적 실적 성장이 예상됩니다.',
-        recommendations: [
-            { ticker: '005930.KS', name: '삼성전자', reason: 'HBM3E 양산 본격화 및 온디바이스 AI가 탑재된 갤럭시 시리즈 판매 호조에 따른 실적 턴어라운드.', rating: 'BUY' },
-            { ticker: 'NVDA', name: 'NVIDIA Corp.', reason: '글로벌 AI 가속기 시장 점유율 90% 이상을 장악하며 독점적인 잉여현금흐름 창출.', rating: 'BUY' },
-            { ticker: 'MSFT', name: 'Microsoft', reason: 'OpenAI와의 강력한 파트너십을 바탕으로 클라우드(Azure)와 오피스 제품군에 AI를 성공적으로 수익화 중인 최대 수혜주.', rating: 'BUY' },
-            { ticker: '000660.KS', name: 'SK하이닉스', reason: '엔비디아 향 HBM(고대역폭메모리) 핵심 공급사로서, AI 서버 증설 경쟁의 가장 직접적이고 확실한 국내 수혜주.', rating: 'BUY' },
-            { ticker: 'TSM', name: 'TSMC', reason: '글로벌 파운드리(반도체 위탁생산) 1위. 엔비디아, AMD, 애플 등 글로벌 빅테크의 첨단 AI 칩을 사실상 독점 생산.', rating: 'BUY' },
-            { ticker: 'ASML', name: 'ASML Holding', reason: '초미세 반도체 공정에 필수적인 EUV(극자외선) 노광장비를 전 세계에서 유일하게 독점 공급하는 슈퍼 을(乙).', rating: 'BUY' },
-            { ticker: 'AVGO', name: 'Broadcom', reason: '구글, 메타 등의 맞춤형 AI 실리콘(ASIC) 설계 및 데이터센터 네트워크 스위치 칩 분야의 절대 강자.', rating: 'BUY' },
-            { ticker: 'PLTR', name: 'Palantir Technologies', reason: '기업 및 정부 기관을 위한 AI 기반 데이터 분석 플랫폼(AIP) 수요 폭발로 흑자 전환 및 폭발적 마진 확장 국면.', rating: 'BUY' }
-        ]
-    },
-    {
-        keywords: ['고령화', '헬스케어', '바이오', '인구구조', '제약', '의료기기', '신약'],
-        themeName: '인구 고령화 및 헬스케어 메가트렌드',
-        description: '글로벌 인구 고령화가 가속화됨에 따라 만성질환 치료제, 비만 치료제, 그리고 의료기기(임플란트, 덴탈 등) 산업의 장기적인 우상향이 기대됩니다. 특히 빅파마들의 M&A와 신약 파이프라인 가치가 중요합니다.',
-        recommendations: [
-            { ticker: 'LLY', name: 'Eli Lilly', reason: 'GLP-1 계열 비만 및 당뇨 치료제(마운자로, 젭바운드)의 폭발적인 글로벌 수요 증가 및 적응증 확대.', rating: 'BUY' },
-            { ticker: '207940.KS', name: '삼성바이오로직스', reason: '안정적인 CDMO 위탁 생산 캐파 확장을 통해 고령화 시대의 바이오 의약품 수요에 적극 대응.', rating: 'BUY' },
-            { ticker: 'NVO', name: 'Novo Nordisk', reason: '위고비, 오젬픽 등 블록버스터 비만 치료제 시장을 양분하며 막대한 현금 창출 및 심혈관 질환 등 적응증 확장.', rating: 'BUY' },
-            { ticker: 'ISRG', name: 'Intuitive Surgical', reason: '다빈치 로봇 수술기를 통해 글로벌 최소침습수술 시장을 독점. 고령화에 따른 수술 건수 증가로 영구적인 소모품 매출 성장.', rating: 'BUY' },
-            { ticker: 'UNH', name: 'UnitedHealth Group', reason: '미국 최대의 건강보험 및 의료 서비스 네트워크 기업. 메디케어 어드밴티지 가입자 증가로 안정적인 두자릿수 이익 성장.', rating: 'BUY' },
-            { ticker: 'JNJ', name: 'Johnson & Johnson', reason: '제약과 의료기기 포트폴리오가 잘 분산된 글로벌 헬스케어 대장주. 뛰어난 방어력과 지속적인 배당 성장 매력.', rating: 'HOLD' },
-            { ticker: '068270.KS', name: '셀트리온', reason: '다양한 바이오시밀러 포트폴리오 직판 체제 구축 및 자가면역질환 신약 짐펜트라의 미국 시장 안착 모멘텀.', rating: 'BUY' },
-            { ticker: 'SYK', name: 'Stryker Corp.', reason: '정형외과 수술용 로봇(Mako) 및 인공관절 분야 글로벌 선두. 노인 인구 증가에 따른 무릎/고관절 교체 수요 폭증 수혜.', rating: 'BUY' }
-        ]
-    }
+const stockUniverse = [
+    { ticker: 'NVDA', name: 'NVIDIA Corp.', tags: ['ai', '반도체', '데이터센터', '가속기', 'gpu'], rating: 'BUY', baseReason: 'AI 연산의 핵심인 GPU 시장 독점 및 블랙웰(Blackwell) 아키텍처 기반의 강력한 실적 성장.' },
+    { ticker: 'MSFT', name: 'Microsoft', tags: ['ai', '클라우드', '소프트웨어', '코파일럿', 'openai'], rating: 'BUY', baseReason: '애저(Azure) 클라우드와 오피스 제품군 내 AI 통합을 통한 가장 빠른 AI 수익화 성공.' },
+    { ticker: '005930.KS', name: '삼성전자', tags: ['반도체', 'hbm', '스마트폰', '온디바이스', 'ai'], rating: 'BUY', baseReason: 'HBM3E 공급 본격화 및 온디바이스 AI 시장 개화에 따른 모바일/가전 수요 반등 수혜.' },
+    { ticker: '000660.KS', name: 'SK하이닉스', tags: ['hbm', '반도체', '메모리', 'ai'], rating: 'BUY', baseReason: '엔비디아 향 HBM 독점적 공급 지위 및 서버용 DDR5 수요 폭증에 따른 역대급 이익 사이클.' },
+    { ticker: 'AAPL', name: 'Apple Inc.', tags: ['ai', '스마트폰', '애플인텔리전스', '소비재'], rating: 'BUY', baseReason: 'Apple Intelligence 출시로 인한 아이폰 교체 주기 도래 및 서비스 부문의 견조한 마진 확대.' },
+    { ticker: 'TSM', name: 'TSMC', tags: ['반도체', '파운드리', 'ai', '첨단공정'], rating: 'BUY', baseReason: '2나노/3나노 첨단 공정 독점력과 AI 칩 위탁 생산 수요 폭증에 따른 압도적 영업이익률.' },
+    { ticker: 'LLY', name: 'Eli Lilly', tags: ['헬스케어', '바이오', '비만치료제', '당뇨', '고령화'], rating: 'BUY', baseReason: '젭바운드/마운자로의 글로벌 수요 폭발 및 심혈관 질환 등 적응증 확대에 따른 장기 성장성.' },
+    { ticker: 'NVO', name: 'Novo Nordisk', tags: ['헬스케어', '바이오', '비만치료제', '위고비', '고령화'], rating: 'BUY', baseReason: '글로벌 비만 치료제 시장 선점 및 생산 시설 확충을 통한 공급 병목 현상 해소 및 매출 고성장.' },
+    { ticker: 'AMZN', name: 'Amazon.com', tags: ['이커머스', '클라우드', 'aws', 'ai', '물류'], rating: 'BUY', baseReason: 'AWS의 AI 서비스 성과 가시화 및 이커머스 부문의 물류 효율화에 따른 수익성 극대화.' },
+    { ticker: 'GOOGL', name: 'Alphabet Inc.', tags: ['ai', '광고', '클라우드', '유튜브', '제미나이'], rating: 'BUY', baseReason: 'Gemini 모델의 검색 엔진 통합 및 유튜브 쇼츠 광고 매출 고성장, 클라우드 부문 흑자폭 확대.' },
+    { ticker: 'META', name: 'Meta Platforms', tags: ['ai', '광고', 'sns', '메타버스'], rating: 'BUY', baseReason: 'AI 기반 광고 타겟팅 고도화로 광고주 ROAS 증가 및 Llama 모델을 통한 오픈소스 AI 생태계 주도.' },
+    { ticker: 'AVGO', name: 'Broadcom', rating: 'BUY', tags: ['반도체', '네트워크', 'ai', '커스텀칩'], baseReason: '빅테크들의 커스텀 AI 가속기(ASIC) 설계 수요 증가 및 VMWare 인수 시너지 본격화.' },
+    { ticker: 'O', name: 'Realty Income', tags: ['금리인하', '리츠', '배당', '부동산'], rating: 'BUY', baseReason: '금리 하락 사이클 진입 시 조달 비용 감소 및 높은 배당 수익률로 인한 자금 유입 수혜.' },
+    { ticker: 'NEE', name: 'NextEra Energy', tags: ['금리인하', '에너지', '유틸리티', '신재생'], rating: 'BUY', baseReason: '미국 최대 재생 에너지 기업으로, 금리 인하 시 대규모 프로젝트 금융 비용 절감으로 수익성 개선.' },
+    { ticker: 'JPM', name: 'JPMorgan Chase', tags: ['금융', '은행', '금리', '미국'], rating: 'HOLD', baseReason: '압도적인 자본력과 안정적인 예대 마진 관리력 보유. 금리 인하 시 IB 부문 활성화 기대.' },
+    { ticker: 'TSLA', name: 'Tesla', tags: ['전기차', 'ai', '자율주행', '에너지'], rating: 'HOLD', baseReason: '저가형 모델 출시 기대감 및 FSD 자율주행 데이터 기반의 AI 기업으로서의 밸류에이션 리레이팅.' },
+    { ticker: '005380.KS', name: '현대차', tags: ['자동차', '하이브리드', '전기차', '배당'], rating: 'BUY', baseReason: '전기차 캐즘을 하이브리드 판매로 방어하며 역대 최고 실적 기록 중. 강력한 주주환원 정책(밸류업).' },
+    { ticker: '207940.KS', name: '삼성바이오로직스', tags: ['바이오', 'cdmo', '헬스케어'], rating: 'BUY', baseReason: '글로벌 빅파마 수주 지속 및 5공장 가동을 통한 생산 능력 초격차 확대.' },
+    { ticker: 'ASML', name: 'ASML Holding', tags: ['반도체', '노광장비', '첨단공정', '독점'], rating: 'BUY', baseReason: 'High-NA EUV 등 차세대 장비 독점 공급으로 반도체 미세화 공정의 필수 관문 역할 지속.' },
+    { ticker: 'PLTR', name: 'Palantir', tags: ['ai', '소프트웨어', '데이터', '국방'], rating: 'BUY', baseReason: '기업용 AI 플랫폼(AIP)의 폭발적 수주 증가로 인한 S&P500 편입 및 실적 퀀텀 점프.' },
+    { ticker: 'UNH', name: 'UnitedHealth', tags: ['헬스케어', '보험', '고령화'], rating: 'BUY', baseReason: '고령 인구 증가에 따른 메디케어 시장 확대 및 데이터 기반 의료 서비스 부문(Optum)의 높은 성장성.' },
+    { ticker: '035420.KS', name: 'NAVER', tags: ['플랫폼', 'ai', '광고', '금리인하'], rating: 'HOLD', baseReason: '자체 생성형 AI \'하이퍼클로바X\'의 수익화 진행 및 금리 하락 시 성장주 밸류에이션 회복 수혜.' },
+    { ticker: 'COST', name: 'Costco', tags: ['소비재', '리테일', '안정성'], rating: 'BUY', baseReason: '강력한 멤버십 락인 효과와 높은 매출 성장률 유지. 경기 변동과 무관한 안정적인 현금 창출력.' },
+    { ticker: 'V', name: 'Visa Inc.', tags: ['금융', '핀테크', '결제', '인플레'], rating: 'BUY', baseReason: '글로벌 여행 수요 회복 및 디지털 결제 비중 확대에 따른 고마진 수수료 매출 지속 성장.' }
 ];
 
-// 매칭되는 키워드가 없을 때 제공할 동적 포트폴리오 (우량주 및 가치주 중심 8개 종목)
-const generalFallbackRecommendations = [
-    { ticker: 'GOOGL', name: 'Alphabet Inc.', reason: '강력한 검색 독점력과 유튜브, 클라우드 부문의 견조한 성장. AI 기술 도입을 통한 광고 단가 상승 및 효율성 개선 기대.', rating: 'BUY' },
-    { ticker: 'AMZN', name: 'Amazon.com', reason: '이커머스 부문의 압도적 물류 효율화와 마진율 70% 이상의 아마존 웹 서비스(AWS) 성장이 구조적 이익 창출을 견인.', rating: 'BUY' },
-    { ticker: 'BRK.B', name: 'Berkshire Hathaway', reason: '막대한 현금성 자산을 바탕으로 한 워런 버핏의 가치투자 포트폴리오. 불확실한 매크로 환경에서 최고의 방어력 제공.', rating: 'BUY' },
-    { ticker: 'JPM', name: 'JPMorgan Chase', reason: '글로벌 1위 금융기관. 고금리 환경에서의 이자 이익 극대화 및 탄탄한 대손충당금을 통한 매크로 변동성 방어력 우수.', rating: 'BUY' },
-    { ticker: 'V', name: 'Visa Inc.', reason: '글로벌 결제 네트워크 독점. 인플레이션 환경에서 명목 결제 금액 증가에 따라 매출이 자연스럽게 상승하는 강력한 인플레 헷지.', rating: 'BUY' },
-    { ticker: 'COST', name: 'Costco Wholesale', reason: '회원제 기반의 강력한 고객 충성도. 경기 침체 우려 속에서도 가성비를 찾는 소비자들의 필수소비재 수요가 몰리며 호실적 기록.', rating: 'BUY' },
-    { ticker: 'XOM', name: 'Exxon Mobil', reason: '에너지 가격 하방 경직성 확보. 강력한 잉여현금흐름을 기반으로 한 대규모 자사주 매입 및 배당 확대로 주주환원율 최고 수준.', rating: 'HOLD' },
-    { ticker: '005380.KS', name: '현대차', reason: '전기차(EV) 전환 지연 속 하이브리드(HEV) 차종 믹스 개선으로 역대 최대 영업이익 달성 및 선진 시장 점유율 지속 확대.', rating: 'BUY' }
-];
-
-// 범용 리포트를 위한 티커-종목명 딕셔너리
-const tickerToName = {
-    'O': 'Realty Income (리얼티 인컴)', 'NEE': 'NextEra Energy (넥스테라 에너지)', 'T': 'AT&T', '035720.KS': '카카오 (Kakao)',
-    'IWF': 'Russell 1000 Growth ETF', 'TLT': '20+ Year Treasury Bond ETF',
-    'MSFT': 'Microsoft (마이크로소프트)', '000660.KS': 'SK하이닉스 (SK Hynix)', 'TSM': 'TSMC', 'ASML': 'ASML Holding',
-    'AVGO': 'Broadcom (브로드컴)', 'PLTR': 'Palantir Technologies (팔란티어)',
-    'LLY': 'Eli Lilly (일라이 릴리)', '207940.KS': '삼성바이오로직스', 'NVO': 'Novo Nordisk (노보 노디스크)',
-    'ISRG': 'Intuitive Surgical (인튜이티브 서지컬)', 'UNH': 'UnitedHealth Group (유나이티드헬스)', 'JNJ': 'Johnson & Johnson (존슨앤존슨)',
-    '068270.KS': '셀트리온 (Celltrion)', 'SYK': 'Stryker Corp. (스트라이커)',
-    'GOOGL': 'Alphabet Inc. (구글)', 'AMZN': 'Amazon.com (아마존)', 'BRK.B': 'Berkshire Hathaway (버크셔 해서웨이)',
-    'JPM': 'JPMorgan Chase (JP모건)', 'V': 'Visa Inc. (비자)', 'COST': 'Costco Wholesale (코스트코)',
-    'XOM': 'Exxon Mobil (엑슨 모빌)', '005380.KS': '현대자동차 (Hyundai Motor)',
-    'NAVER': 'NAVER (네이버)'
-};
-
-
 // ========================================== 
-// 2. 하드코딩된 심층 분석 DB (Deep Dive Data)
+// 2. 최신 심층 분석 DB (2024~2026 데이터)
 // ========================================== 
 const mockDataDB = {
     '삼성전자': {
         name: '삼성전자 (Samsung Electronics)',
         ticker: '005930.KS',
         rating: 'BUY',
-        targetPrice: '105,000 KRW',
-        currentPrice: '73,000 KRW',
+        targetPrice: '110,000 KRW',
+        currentPrice: '78,500 KRW',
         comprehensive: `
-            <p><strong>반도체 사이클 회복과 온디바이스 AI 생태계 주도권 확보</strong></p>
-            <p>당사는 삼성전자에 대한 투자의견을 'BUY'로 유지하고, 목표주가를 105,000원으로 상향 조정합니다. 1) 장기간 이어졌던 메모리 반도체의 다운턴이 완전히 종료되고 수익성 위주의 '공급자 우위' 시장으로 전환되었습니다. 2) HBM(고대역폭메모리) 경쟁력 우려로 경쟁사 대비 과도하게 디스카운트 받았던 밸류에이션이 12단 HBM3E 고객사 퀄테스트 통과 모멘텀과 함께 빠르게 정상화될 것입니다.</p>
-            <p>뿐만 아니라, 자체 개발한 LLM(거대언어모델) '가우스'와 갤럭시 S 시리즈를 결합한 '온디바이스 AI' 생태계는 교체 주기가 길어진 스마트폰 시장에서 강력한 수요 촉매제(Catalyst)로 작용하여 MX 사업부의 견조한 이익 방어를 가능하게 할 것입니다.</p>`,
+            <p><strong>[2024-2026 전략] HBM 리더십 탈환과 AI 하드웨어 장악</strong></p>
+            <p>삼성전자는 2024년 5세대 HBM(HBM3E)의 주요 고객사 퀄 테스트 통과와 함께 메모리 수익성을 극대화하고 있습니다. 특히 D램 업황의 구조적 우상향 사이클 진입과 낸드(NAND) 적자 해소로 2024년 영업이익은 전년 대비 약 600% 이상 증가한 40조 원 수준을 기록할 전망입니다.</p>
+            <p>2025년에는 2나노 공정 기반 파운드리 양산과 갤럭시 AI 에코시스템 확장을 통해 세트(Set)와 부품(Component) 간의 시너지를 극대화하며 다시 한번 글로벌 반도체 시가총액 리더로서의 지위를 공고히 할 것으로 판단됩니다.</p>`,
         overview: `
             <ul>
-                <li><strong>핵심 사업 구조:</strong> DS(디바이스 솔루션: 메모리/파운드리/LSI), DX(디바이스 경험: 모바일/가전/네트워크), SDC(디스플레이), Harman(전장)의 다각화된 포트폴리오를 보유한 글로벌 IT 통합 플랫폼.</li>
-                <li><strong>비즈니스 모델:</strong> 반도체 팹(Fab)에서의 초미세 공정 양산 능력과 세트(Set) 기기의 글로벌 판매망을 결합하여, 부품부터 완제품까지 자체 소화 및 외부 판매가 가능한 수직 계열화 구축.</li>
-                <li><strong>경영 전략 및 주주환원:</strong> '초격차 기술' 확보를 위해 연간 50조 원 이상의 CAPEX를 집행하며, 잉여현금흐름(FCF)의 50%를 환원하는 정규 배당 및 특별 배당 정책을 통해 주주가치 제고 중.</li>
+                <li><strong>핵심 경쟁력:</strong> 세계 1위 메모리 생산 능력, 글로벌 스마트폰 점유율 1위, 세계 2위 파운드리 생산 라인을 모두 보유한 전 세계 유일의 종합 반도체 기업(IDM).</li>
+                <li><strong>미래 먹거리:</strong> CXL(Compute Express Link), 온디바이스 AI 칩셋, 그리고 차세대 패키징 기술을 통한 AI 서버 토탈 솔루션 제공.</li>
+                <li><strong>재무 전략:</strong> 연간 50조 원 이상의 CAPEX를 유지하면서도 순현금 100조 원 수준의 안정적인 재무 상태를 바탕으로 공격적인 M&A 기회 탐색 중.</li>
             </ul>`,
         financialText: `
-            <p><strong>[실적 코멘트] 감산 효과 극대화 및 ASP 상승에 따른 레버리지 효과</strong></p>
-            <p>전년도 대규모 적자를 기록했던 DS 부문이 공격적인 감산(Production Cut)과 선단 공정 전환(DDR5, HBM) 비중 확대를 통해 흑자 전환에 성공했습니다. 특히 D램과 낸드의 ASP(평균판매단가)가 전 분기 대비 두 자릿수 상승률을 기록하며 영업 레버리지 효과가 본격화되고 있습니다.</p>
-            <p>2024년 예상 매출액은 295조 원(+14% YoY), 영업이익은 38조 5천억 원(+485% YoY)으로 가파른 V자 반등이 추정됩니다. 스마트폰(MX) 부문 역시 AI 기능 탑재로 인한 ASP 상승으로 두 자릿수 영업이익률을 수성할 것으로 보입니다.</p>`,
+            <p><strong>[재무 추정] 영업이익 V자 반등 및 영업이익률 정상화</strong></p>
+            <p>2023년의 기록적인 적자를 뒤로하고, 2024년부터 ASP(평균판매단가) 상승 효과가 본격화되고 있습니다. 특히 고부가 제품인 HBM 및 DDR5 비중이 전체 매출의 30%를 상회하며 수익성 개선을 견인하고 있습니다.</p>`,
         financialTable: [
-            ['매출액 (조 원)', '302.2', '258.9', '295.4', '325.1'],
-            ['영업이익 (조 원)', '43.3', '6.5', '38.5', '52.4'],
-            ['지배주주순이익 (조 원)', '54.7', '15.1', '30.2', '41.5'],
-            ['영업이익률 (%)', '14.3%', '2.5%', '13.0%', '16.1%'],
-            ['ROE (%)', '17.0%', '4.1%', '8.5%', '11.2%'],
-            ['P/E (배)', '9.5x', '35.2x', '14.8x', '10.5x']
+            ['주요 지표 (조 원)', '2023(A)', '2024(E)', '2025(E)', '2026(E)'],
+            ['매출액', '258.9', '305.4', '342.1', '378.5'],
+            ['영업이익', '6.6', '41.2', '55.8', '64.2'],
+            ['순이익', '15.4', '32.5', '45.1', '51.8'],
+            ['ROE (%)', '4.1%', '10.5%', '13.8%', '14.5%'],
+            ['P/E (배)', '35.2x', '14.2x', '11.5x', '10.2x']
         ],
-        financialChartData: [43.3, 6.5, 38.5, 52.4],
-        financialChartLabels: ['2022', '2023', '2024(E)', '2025(E)'],
-        financialChartTitle: '연간 영업이익 추이 (조 원)',
-        industry: `
-            <p><strong>[메모리 산업]</strong> AI 서버 증설 경쟁에 따라 빅테크(CSP)들의 자본 지출이 증가하며 고용량 서버 D램 및 eSSD 수요가 폭발하고 있습니다. 공급 측면에서는 HBM의 다이(Die) 사이즈가 일반 D램 대비 커서 웨이퍼 캐파를 많이 잠식하므로, 레거시(범용) D램의 공급 부족 현상이 심화되어 가격 상승 사이클이 장기화될 전망입니다.</p>
-            <p><strong>[파운드리 경쟁]</strong> TSMC가 AI 가속기 칩 양산을 독점하다시피 하고 있어 점유율 격차를 좁히기는 쉽지 않으나, 3나노 이하 선단 공정(GAA 기술)에서의 수율 안정화와 메인 벤더들의 멀티 벤더(Multi-vendor) 전략 채택 시 삼성전자 파운드리의 낙수효과가 기대됩니다.</p>`,
-        momentum: `
-            <p><strong>[수급 분석]</strong> 최근 3개월간 외국인 투자자들은 국내 증시에서 삼성전자를 최우선 순위로 순매수하고 있습니다. 이는 글로벌 반도체 벤치마크 지수 대비 삼성전자의 상대적 소외 현상(Underperformance)이 해소되는 과정으로 해석됩니다.</p>
-            <p><strong>[기술적 분석]</strong> 주가는 장기 저항선인 8만 원 선 돌파를 시도하고 있으며, 120일 이동평균선이 우상향으로 전환되었습니다. RSI(상대강도지수)는 60 부근으로 추가 상승 여력이 충분한 구간입니다.</p>`,
-        riskText: `
-            <p>전사 실적에 가장 큰 영향을 미치는 핵심 리스크는 다음과 같습니다.</p>`,
+        financialChartData: [6.6, 41.2, 55.8, 64.2],
+        financialChartLabels: ['2023', '2024(E)', '2025(E)', '2026(E)'],
+        financialChartTitle: '영업이익 추이 (조 원)',
+        industry: `<p>AI 서버용 고용량 메모리 수요가 공급을 앞지르는 '공급자 우위' 시장이 지속되고 있습니다. 특히 HBM 시장은 2026년까지 연평균 60% 이상의 성장이 예상되며, 삼성전자의 점유율 확대가 주가의 핵심 촉매제가 될 것입니다.</p>`,
+        momentum: `<p>최근 외국인 지분율이 55%를 돌파하며 역대 최고 수준에 근접했습니다. 기관 투자자들의 '밸류업 프로그램' 수혜주로서의 매수세 또한 강하게 유입되고 있습니다.</p>`,
+        riskText: `<p>미·중 반도체 패권 갈등에 따른 대중국 장비 반입 규제와 파운드리 부문의 TSMC와의 점유율 격차 해소 지연이 주요 리스크 요인입니다.</p>`,
         swot: {
-            s: [
-                '메모리 반도체 원가 경쟁력 및 막강한 현금 창출력',
-                '부품(부품)부터 세트(스마트폰/가전)까지 아우르는 밸류체인 수직 계열화'
-            ],
-            w: [
-                '경쟁사 대비 HBM 시장 초기 진입 및 점유율 확보 지연',
-                '파운드리 선단 공정의 대형 고객사(NVIDIA, Apple 등) 수주 부진'
-            ],
-            o: [
-                '온디바이스 AI 시장 개화로 인한 B2C 하드웨어 교체 슈퍼사이클',
-                '메모리 공급 부족으로 인한 D램/낸드 가격(ASP) 구조적 상승'
-            ],
-            t: [
-                '미·중 지정학적 갈등에 따른 반도체 수출 통제 및 공급망 리스크',
-                '중국 YMTC, CXMT 등 자국 정부 지원을 받는 로컬 업체의 추격'
-            ]
+            s: ['메모리 전 분야 압도적 점유율', '안정적인 현금흐름'],
+            w: ['파운드리 선단공정 수율 안정화 속도', 'HBM 시장 초기 대응 지연'],
+            o: ['온디바이스 AI 시장의 폭발적 개화', '글로벌 금리 인하에 따른 IT 수요 회복'],
+            t: ['지정학적 리스크 심화', '중국 레거시 반도체의 자급률 확대']
         }
     },
     'AAPL': {
         name: 'Apple Inc. (애플)',
         ticker: 'AAPL',
         rating: 'BUY',
-        targetPrice: '$235.00',
-        currentPrice: '$185.20',
+        targetPrice: '$250.00',
+        currentPrice: '$215.40',
         comprehensive: `
-            <p><strong>'Apple Intelligence'가 촉발할 강력한 하드웨어 교체 사이클</strong></p>
-            <p>애플은 20억 대 이상의 활성 기기(Active Installed Base)를 바탕으로 단순한 하드웨어 판매를 넘어 '서비스 생태계'에서 막대한 현금을 창출하고 있습니다. 최근 WWDC에서 발표된 'Apple Intelligence'는 개인정보 보호를 최우선으로 하는 온디바이스 AI와 클라우드 AI의 하이브리드 모델을 제시하며 시장의 AI 뒤처짐 우려를 일거에 해소했습니다.</p>
-            <p>새로운 AI 기능은 iPhone 15 Pro 이상의 고사양 모델에서만 제한적으로 구동되므로, 구형 모델 사용자들의 대규모 업그레이드(Super Cycle)를 강제할 것입니다. 서비스 매출의 고성장과 하드웨어 판매의 반등이 겹치는 향후 2년은 애플에게 새로운 성장 국면이 될 것입니다.</p>`,
+            <p><strong>[2024 하반기 전망] AI가 여는 20억 대 기기의 교체 사이클</strong></p>
+            <p>애플은 WWDC 2024를 통해 공개한 'Apple Intelligence'를 기점으로 폐쇄적인 하드웨어 강자에서 '개인 맞춤형 AI 비서' 플랫폼으로 진화하고 있습니다. 이는 iPhone 16 시리즈부터 시작될 강력한 하드웨어 슈퍼 사이클을 예고하고 있습니다.</p>
+            <p>또한, 서비스 부문(App Store, Music, iCloud)의 매출 비중이 25%를 넘어서며 하드웨어 부문의 변동성을 상쇄하고 전사 마진율을 45% 이상으로 끌어올리는 고성장/고마진 구조를 완성했습니다.</p>`,
         overview: `
             <ul>
-                <li><strong>핵심 사업 구조:</strong> 하드웨어(iPhone 비중 약 50%, Mac, iPad, Wearables)와 고수익 서비스(App Store, Apple Music, iCloud, Apple Pay, 라이선싱 등) 부문으로 구성.</li>
-                <li><strong>비즈니스 모델:</strong> iOS/macOS라는 폐쇄적이지만 압도적인 사용자 경험을 제공하는 소프트웨어 생태계를 통해 고객 락인(Lock-in)을 극대화하고, 서비스 구독 모델로 LTV(고객생애가치)를 높임.</li>
-                <li><strong>자체 칩셋 역량:</strong> ARM 아키텍처 기반의 A-시리즈(모바일) 및 M-시리즈(PC/태블릿) 실리콘 자체 설계를 통해 타사 대비 전력 효율성과 연산 성능에서 압도적 우위 점함.</li>
+                <li><strong>비즈니스 모델:</strong> iOS/macOS라는 독점적 생태계를 기반으로 하드웨어를 판매하고, 이를 통해 발생한 데이터를 기반으로 고수익 서비스 매출을 창출하는 'Eco-system Lock-in'.</li>
+                <li><strong>기술적 우위:</strong> 자체 설계 칩셋(A/M 시리즈)을 통한 전력 효율 극대화 및 소프트웨어와 하드웨어의 완벽한 최적화.</li>
+                <li><strong>주주 환원:</strong> 매년 1,000억 달러 규모의 자사주 매입 및 배당 확대를 통해 EPS(주당순이익)의 지속적인 우상향 보장.</li>
             </ul>`,
         financialText: `
-            <p><strong>[실적 코멘트] 서비스 마진율 상승이 견인하는 구조적 이익 성장</strong></p>
-            <p>최근 분기 실적에서 하드웨어 매출 성장은 중국 시장 부진 등으로 둔화되었으나, 서비스 부문의 매출이 전년 동기 대비 14% 증가하며 사상 최고치를 경신했습니다. 특히 서비스 부문의 매출총이익률(Gross Margin)은 74%를 상회하여 전사 마진율 개선을 주도하고 있습니다.</p>
-            <p>경이로운 잉여현금흐름(연간 약 1,000억 달러 수준)을 바탕으로 역사상 최대 규모인 1,100억 달러의 자사주 매입 프로그램을 발표했습니다. 이는 EPS(주당순이익)의 지속적인 우상향을 담보하는 핵심 재무 전략입니다.</p>`,
+            <p><strong>[실적 분석] 서비스 마진율 70% 돌파 및 하드웨어 매출 반등</strong></p>
+            <p>중국 시장 점유율 우려에도 불구하고, 인도 등 신흥 시장에서의 성장이 이를 상쇄하고 있습니다. 특히 고가의 Pro 모델 비중 증가로 인해 ASP가 꾸준히 상승 중입니다.</p>`,
         financialTable: [
-            ['매출액 (Billion $)', '394.3', '383.2', '390.5', '415.8'],
-            ['영업이익 (Billion $)', '119.4', '114.3', '118.2', '128.5'],
-            ['순이익 (Billion $)', '99.8', '96.9', '101.5', '110.2'],
-            ['매출총이익률 (%)', '43.3%', '44.1%', '45.8%', '46.5%'],
-            ['ROE (%)', '175.4%', '156.0%', '160.5%', '165.2%'],
-            ['P/E (배)', '23.5x', '29.8x', '26.4x', '24.1x']
+            ['주요 지표 (Billion $)', 'FY23(A)', 'FY24(E)', 'FY25(E)', 'FY26(E)'],
+            ['매출액', '383.3', '395.2', '425.8', '458.1'],
+            ['영업이익', '114.3', '125.1', '138.5', '152.4'],
+            ['순이익', '97.0', '105.8', '118.4', '130.2'],
+            ['영업이익률 (%)', '29.8%', '31.6%', '32.5%', '33.2%'],
+            ['P/E (배)', '29.8x', '28.5x', '24.2x', '21.5x']
         ],
-        financialChartData: [119.4, 114.3, 118.2, 128.5],
-        financialChartLabels: ['FY22', 'FY23', 'FY24(E)', 'FY25(E)'],
-        financialChartTitle: 'Operating Income (Billion USD)',
-        industry: `
-            <p><strong>[프리미엄 폰 시장 독식]</strong> 글로벌 스마트폰 출하량은 역성장 혹은 정체 중이나, 600달러 이상의 프리미엄 스마트폰 시장은 견조하게 성장하고 있습니다. 애플은 이 고가 시장에서 70% 이상의 점유율을 차지하며 산업 내 이익을 사실상 독식하고 있습니다.</p>
-            <p><strong>[공간 컴퓨팅과 웨어러블]</strong> Vision Pro의 초기 판매량은 높지 않으나, '공간 컴퓨팅(Spatial Computing)'이라는 새로운 폼팩터의 기준을 제시했습니다. 향후 원가 절감형 모델이 출시될 경우 스마트폰을 잇는 차세대 디바이스 생태계의 중심축이 될 잠재력이 있습니다.</p>`,
-        momentum: `
-            <p><strong>[수급 및 센티먼트]</strong> AI 내러티브 부재로 연초 마이크로소프트와 엔비디아에 시가총액 1위 자리를 내주며 기관 투자자들의 비중 축소가 있었습니다. 그러나 WWDC 이후 월가 애널리스트들의 목표가 상향 리포트가 쏟아지며 강력한 숏커버링과 신규 매수세가 유입되었습니다.</p>
-            <p><strong>[기술적 분석]</strong> 주가는 장기 저항선인 195달러 선을 강한 거래량과 함께 돌파(Breakout)하며 사상 최고치 경신 랠리에 돌입했습니다. 단기 이격도가 벌어졌으나, 조정 시 매수(Buy on dips) 전략이 유효한 상승 추세입니다.</p>`,
-        riskText: `
-            <p>전사 실적에 가장 큰 영향을 미치는 핵심 리스크는 다음과 같습니다.</p>`,
+        financialChartData: [114.3, 125.1, 138.5, 152.4],
+        financialChartLabels: ['FY23', 'FY24(E)', 'FY25(E)', 'FY26(E)'],
+        financialChartTitle: 'Operating Income ($B)',
+        industry: `<p>글로벌 스마트폰 시장이 정체된 가운데, 프리미엄 폰 시장은 매년 성장 중입니다. 애플은 프리미엄 시장 내 70% 이상의 점유율을 차지하며 산업 내 이익을 사실상 독식하고 있습니다.</p>`,
+        momentum: `<p>AI 내러티브 확보 이후 월가 투자은행들의 목표주가 상향이 이어지고 있으며, 워런 버핏의 비중 조절 이후에도 개인 및 기관 투자자들의 강력한 매수세가 유지되고 있습니다.</p>`,
+        riskText: `<p>반독점 소송(미국 법무부, 유럽연합), 중국 정부의 아이폰 규제 확대, 그리고 생성형 AI 기술의 자체 개발 속도가 주요 변수입니다.</p>`,
         swot: {
-            s: [
-                '비교 불가능한 브랜드 충성도 및 하드웨어/소프트웨어 통합 생태계',
-                '압도적인 잉여현금흐름 기반의 대규모 주주환원(자사주 매입)'
-            ],
-            w: [
-                '전체 매출에서 iPhone이 차지하는 비중이 지나치게 높음 (의존도 심화)',
-                '생성형 AI의 자체 파운데이션 모델 경쟁력에 대한 시장의 의구심'
-            ],
-            o: [
-                'Apple Intelligence 적용 모델 제한으로 인한 대규모 하드웨어 교체 수요 유발',
-                '신흥국(인도, 베트남 등)에서의 프리미엄폰 시장 침투율 확대'
-            ],
-            t: [
-                '미국 법무부(DOJ) 및 유럽 연합(EU)의 앱스토어 독점 관련 규제 철퇴',
-                '중국 시장 내 화웨이 등 애국 소비 부상 및 공공기관 아이폰 사용 금지령'
-            ]
+            s: ['압도적인 브랜드 가치', '현금 창출 능력'],
+            w: ['신제품 폼팩터 혁신 둔화', '중국 시장 의존도'],
+            o: ['개인용 AI 비서 시장 선점', '인도 시장 판매 급증'],
+            t: ['글로벌 독점 규제 강화', '화웨이 등 로컬 업체의 추격']
         }
     }
 };
 
-// 동적 데이터 생성 (DB에 없는 범용 종목)
-const getFallbackData = (query) => {
-    const uppercaseQuery = query.toUpperCase();
-    const companyName = tickerToName[uppercaseQuery] || `${uppercaseQuery} Corporation`;
-    
-    return {
-        name: companyName,
-        ticker: uppercaseQuery,
-        rating: 'HOLD',
-        targetPrice: 'AI 분석 산출 중',
-        currentPrice: '-',
-        comprehensive: `<p><strong>${companyName}</strong>에 대한 심층 애널리스트 리포트 데이터 수집 및 분석 프로세스가 진행 중입니다. 현재 시스템은 글로벌 시가총액 상위 대형주 및 트렌드 주도주(AI, 반도체, 헬스케어 등)에 분석 역량이 집중되어 있습니다.</p><p>당사의 1차 AI 퀀트 모델 분석 결과, 동사는 속한 산업군 내에서 안정적인 현금흐름을 창출하고 있으나 최근 매크로 환경(금리, 환율, 원자재) 변화에 따른 마진 압박을 일부 겪고 있는 것으로 추정됩니다. 뚜렷한 실적 개선(Turnaround) 또는 신성장 동력이 가시화되기 전까지는 시장 수익률(Market-weight) 수준의 성과가 예상되므로 <strong>'중립(HOLD)'</strong> 의견을 제시합니다.</p>`,
-        overview: `<ul><li><strong>분석 대상 기업:</strong> ${companyName}</li><li>AI가 글로벌 금융 공시 데이터(10-K, 분기보고서 등) 및 최신 뉴스 플로우를 파싱하여 비즈니스 모델을 재구성하고 있습니다.</li><li>경쟁사 대비 핵심 우위 요소 및 지배구조 정보는 추후 딥러닝 모델 업데이트 시 반영될 예정입니다.</li></ul>`,
-        financialText: `<p>최근 3개년 주요 재무제표 원본 데이터를 추출 및 정제하는 중입니다. 가치평가(Valuation) 모형 산출을 위한 추정 PER, PBR, ROE 데이터 셋이 준비 중입니다.</p><p>동종 업계 대비 매출 성장률은 평균 수준을 유지하고 있으나, 영업 레버리지 효과를 극대화하기 위한 비용 통제(Cost Control) 여부가 향후 주가 향방의 핵심 키(Key)가 될 것입니다.</p>`,
-        financialTable: [
-            ['지표', 'T-3', 'T-2', 'T-1', '현재(TTM)'] ,
-            ['매출액 지수', '100.0', '104.2', '109.5', '111.0'],
-            ['영업이익률', '평균', '평균', '하회', '회복중'],
-            ['부채비율', '안정적', '안정적', '보통', '보통']
-        ],
-        financialChartData: [100, 104.2, 109.5, 111.0],
-        financialChartLabels: ['T-3', 'T-2', 'T-1', 'TTM'],
-        financialChartTitle: '매출 성장 지수 (Base=100)',
-        industry: `<p>${companyName}가 속한 산업군은 현재 구조적인 패러다임 변화(디지털 전환, 친환경 규제 강화, 글로벌 공급망 블록화 등)의 한가운데에 놓여 있습니다.</p><p>업종 내 상위 업체로의 점유율 집중(Consolidation) 현상이 가속화되고 있으며, R&D 역량과 자본력을 갖춘 선도 기업 위주로 시장이 재편될 가능성이 높습니다.</p>`,
-        momentum: `<p>최근 주가 흐름은 벤치마크(S&P 500 또는 KOSPI) 지수 대비 뚜렷한 초과 수익(Alpha)을 내지 못하고 횡보하는 움직임을 보이고 있습니다. 스마트 머니(외국인/기관)의 연속적인 순매수 유입은 관찰되지 않습니다.</p><p>기술적 분석 상 박스권 하단에 위치하여 하방 경직성은 확보한 것으로 보이나, 단기 저항선을 강하게 뚫어낼 만한 실적 서프라이즈나 촉매제(Catalyst)가 부재한 상황입니다.</p>`,
-        riskText: `<p>해당 기업 투자 시 유의해야 할 일반적인 리스크 요인은 다음과 같습니다.</p>`,
-        swot: {
-            s: ['안정적인 기존 현금창출원(Cash Cow) 보유', '업계 내 일정 수준 이상의 브랜드 인지도'],
-            w: ['미래 성장 동력(신사업) 부재 및 R&D 투자 부족', '매크로 변수에 민감한 수익 구조'],
-            o: ['경쟁사 도태 시 반사이익에 따른 점유율 확대 가능성', '산업 턴어라운드 시 영업 레버리지 극대화'],
-            t: ['신규 진입자의 파괴적 혁신(Disruptive Innovation) 위협', '글로벌 경기 침체 시 전방 산업 수요 급감']
-        }
-    };
-};
+// ========================================== 
+// 3. 동적 추천 엔진 로직
+// ========================================== 
 
 document.addEventListener('DOMContentLoaded', () => {
     // DOM Elements
     const logoHome = document.getElementById('logo-home');
     const homeView = document.getElementById('home-view');
     const reportContainer = document.getElementById('report-container');
-    
-    // Top bar search
     const topStockInput = document.getElementById('stock-input');
     const topAnalyzeBtn = document.getElementById('analyze-btn');
     const downloadPdfBtn = document.getElementById('download-pdf-btn');
-    
-    // Loading overlay
     const loadingOverlay = document.getElementById('loading-overlay');
     const loadingMsg = document.getElementById('loading-msg');
     const loadingSubMsg = document.getElementById('loading-sub-msg');
-    
-    // Theme/Situation Search
     const situationInput = document.getElementById('situation-input');
     const recommendBtn = document.getElementById('recommend-btn');
     const tagBtns = document.querySelectorAll('.tag');
@@ -263,7 +142,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const themeDescP = document.getElementById('theme-description');
     const recommendationCards = document.getElementById('recommendation-cards');
 
-    // Event Listeners
+    // Home Logo
     logoHome.addEventListener('click', () => {
         homeView.classList.remove('hidden');
         reportContainer.classList.add('hidden');
@@ -273,22 +152,16 @@ document.addEventListener('DOMContentLoaded', () => {
         window.scrollTo(0,0);
     });
 
-    // Top Bar Search
-    topStockInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') performAnalysis(topStockInput.value.trim());
-    });
-    topAnalyzeBtn.addEventListener('click', () => {
-        performAnalysis(topStockInput.value.trim());
-    });
+    // Individual Analysis
+    topAnalyzeBtn.addEventListener('click', () => performAnalysis(topStockInput.value.trim()));
+    topStockInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') performAnalysis(topStockInput.value.trim()); });
 
-    // Theme Search
-    recommendBtn.addEventListener('click', () => {
-        performThemeAnalysis(situationInput.value.trim());
-    });
+    // Situation Analysis
+    recommendBtn.addEventListener('click', () => performDynamicThemeAnalysis(situationInput.value.trim()));
     tagBtns.forEach(tag => {
-        tag.addEventListener('click', (e) => {
-            situationInput.value = e.target.dataset.query;
-            performThemeAnalysis(e.target.dataset.query);
+        tag.addEventListener('click', () => {
+            situationInput.value = tag.dataset.query;
+            performDynamicThemeAnalysis(tag.dataset.query);
         });
     });
 
@@ -296,111 +169,94 @@ document.addEventListener('DOMContentLoaded', () => {
     downloadPdfBtn.addEventListener('click', () => {
         const element = document.getElementById('pdf-content');
         const companyName = document.getElementById('company-name').innerText;
-        
-        const opt = {
-            margin:       10,
-            filename:     `${companyName}_DeepDive_Report.pdf`,
-            image:        { type: 'jpeg', quality: 0.98 },
-            html2canvas:  { scale: 2, useCORS: true },
-            jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-        };
-
-        const originalText = downloadPdfBtn.innerHTML;
-        downloadPdfBtn.innerHTML = '생성 중...';
-        downloadPdfBtn.disabled = true;
-
-        html2pdf().set(opt).from(element).save().then(() => {
-            downloadPdfBtn.innerHTML = originalText;
-            downloadPdfBtn.disabled = false;
-        });
+        html2pdf().set({ margin: 10, filename: `${companyName}_Report.pdf`, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4' } }).from(element).save();
     });
 
-    // Logic: Theme Analysis
-    function performThemeAnalysis(query) {
-        if (!query) {
-            alert('투자 상황이나 테마를 입력해주세요.');
-            situationInput.focus();
-            return;
-        }
+    // ========================================== 
+    // 로직: 동적 테마 분석 및 종목 선별 엔진
+    // ========================================== 
+    function performDynamicThemeAnalysis(query) {
+        if (!query) { alert('상황을 입력해주세요.'); return; }
 
-        // Show loading
-        loadingMsg.textContent = '입력하신 상황(테마)을 분석하여 최적의 수혜주를 탐색 중입니다...';
-        loadingSubMsg.textContent = '거시경제 데이터, 밸류체인 연관성, 과거 주가 상관계수를 연산 중입니다.';
+        loadingMsg.textContent = 'AI가 입력하신 상황에 가장 적합한 종목을 실시간 선별 중입니다...';
+        loadingSubMsg.textContent = '거시 경제 데이터와 각 기업의 비즈니스 밸류체인 연관성을 분석 중입니다.';
         loadingOverlay.classList.remove('hidden');
         recommendationResults.classList.add('hidden');
 
         setTimeout(() => {
-            // Find matching theme
-            let matchedTheme = null;
             const lowerQuery = query.toLowerCase();
             
-            for (const theme of themeDB) {
-                if (theme.keywords.some(kw => lowerQuery.includes(kw))) {
-                    matchedTheme = theme;
-                    break;
-                }
+            // 1. 모든 종목 점수 계산
+            const scoredStocks = stockUniverse.map(stock => {
+                let score = 0;
+                stock.tags.forEach(tag => {
+                    if (lowerQuery.includes(tag)) score += 10; // 태그 매칭 점수
+                });
+                
+                // 보정 점수: 범용적으로 긍정적인 키워드 매칭
+                if (lowerQuery.includes('성장') || lowerQuery.includes('미래')) score += 2;
+                if (lowerQuery.includes('안정') || lowerQuery.includes('배당')) if (stock.tags.includes('배당') || stock.tags.includes('안정성')) score += 5;
+                
+                return { ...stock, score };
+            });
+
+            // 2. 점수 순 정렬 (점수가 같으면 랜덤성 가미하여 다양성 확보)
+            scoredStocks.sort((a, b) => (b.score - a.score) || (Math.random() - 0.5));
+
+            // 3. 상위 8개 추출
+            const selectedStocks = scoredStocks.slice(0, 8);
+            
+            // 4. 테마 제목 결정
+            let themeTitle = `"${query}" 관련 최적 수혜주`;
+            if (selectedStocks[0].score > 0) {
+                if (lowerQuery.includes('ai')) themeTitle = 'AI 및 차세대 컴퓨팅 수혜 전략';
+                else if (lowerQuery.includes('금리')) themeTitle = '금리 변동 대응 자산 배분 전략';
+                else if (lowerQuery.includes('헬스케어') || lowerQuery.includes('노인')) themeTitle = '고령화 및 바이오 혁신 수혜주';
             }
 
-            // 만약 매칭되는 테마가 없다면 사용자의 입력을 바탕으로 동적 포트폴리오 생성
-            if (!matchedTheme) {
-                matchedTheme = {
-                    themeName: `"${query}" 관련 AI 맞춤형 포트폴리오`,
-                    description: '입력하신 상황과 최근 경제 지표, 산업 밸류체인을 다각도로 분석하여, 해당 국면에서 가장 유리한 비즈니스 모델을 가진 8개 종목을 선별했습니다.',
-                    recommendations: generalFallbackRecommendations
-                };
-            }
-
-            renderRecommendations(matchedTheme);
+            renderDynamicRecommendations(themeTitle, selectedStocks, query);
             
             loadingOverlay.classList.add('hidden');
             recommendationResults.classList.remove('hidden');
             recommendationResults.scrollIntoView({ behavior: 'smooth' });
-        }, 2000);
+        }, 1500);
     }
 
-    function renderRecommendations(theme) {
-        analyzedThemeSpan.textContent = theme.themeName;
-        themeDescP.textContent = theme.description;
+    function renderDynamicRecommendations(title, stocks, query) {
+        analyzedThemeSpan.textContent = title;
+        themeDescP.textContent = `입력하신 "${query}" 상황에서 가장 높은 이익 성장성과 비즈니스 모멘텀이 기대되는 상위 8개 기업입니다. 각 기업의 핵심 경쟁력과 추천 사유를 확인하십시오.`;
         
         recommendationCards.innerHTML = '';
-        
-        theme.recommendations.forEach(rec => {
+        stocks.forEach(stock => {
             const card = document.createElement('div');
             card.className = 'stock-card';
             card.innerHTML = `
                 <div class="stock-card-header">
-                    <span class="stock-card-name">${rec.name}</span>
-                    <span class="stock-card-ticker">${rec.ticker}</span>
+                    <span class="stock-card-name">${stock.name}</span>
+                    <span class="stock-card-ticker">${stock.ticker}</span>
                 </div>
                 <div class="stock-card-reason">
-                    ${rec.reason}
+                    ${stock.baseReason}
                 </div>
                 <div class="stock-card-footer">
-                    <span class="card-rating ${rec.rating.toLowerCase()}">의견: ${rec.rating}</span>
-                    <span class="card-action">심층 분석 보기 ➔</span>
+                    <span class="card-rating ${stock.rating.toLowerCase()}">의견: ${stock.rating}</span>
+                    <span class="card-action">상세 리포트 보기 ➔</span>
                 </div>
             `;
-            
-            card.addEventListener('click', () => {
-                performAnalysis(rec.ticker);
-            });
-            
+            card.addEventListener('click', () => performAnalysis(stock.ticker));
             recommendationCards.appendChild(card);
         });
     }
 
-    // Logic: Individual Stock Analysis
+    // ========================================== 
+    // 로직: 개별 종목 분석 및 최신 리포트 생성
+    // ========================================== 
     function performAnalysis(query) {
-        if (!query) {
-            alert('분석할 기업명 또는 종목코드를 입력해주세요.');
-            return;
-        }
+        if (!query) { alert('종목을 입력해주세요.'); return; }
 
         reportContainer.classList.add('hidden');
-        downloadPdfBtn.disabled = true;
-        
-        loadingMsg.textContent = 'AI 애널리스트가 심층 분석 데이터를 수집하고 있습니다...';
-        loadingSubMsg.textContent = '재무제표 파싱, 컨센서스 추합, 산업 밸류체인 맵핑을 수행 중입니다.';
+        loadingMsg.textContent = 'AI 애널리스트가 실시간 금융 데이터를 분석 중입니다...';
+        loadingSubMsg.textContent = '2024년 실적 확정치 및 2025-2026년 컨센서스를 반영 중입니다.';
         loadingOverlay.classList.remove('hidden');
 
         setTimeout(() => {
@@ -410,43 +266,40 @@ document.addEventListener('DOMContentLoaded', () => {
                 homeView.classList.add('hidden');
                 reportContainer.classList.remove('hidden');
                 downloadPdfBtn.disabled = false;
-                
                 reportContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
             } catch (error) {
-                console.error('Report Generation Error:', error);
-                alert('리포트 생성 중 오류가 발생했습니다.');
+                console.error(error);
+                alert('리포트 생성 중 오류 발생');
                 loadingOverlay.classList.add('hidden');
             }
-        }, 2500);
+        }, 2000);
     }
 
     function generateReport(query) {
         const upperQuery = query.toUpperCase();
-        let data = null; 
-        
-        if (query.includes('삼성') || query === '005930' || query === '005930.KS') {
-            data = mockDataDB['삼성전자'];
-        } else if (upperQuery.includes('AAPL') || query.includes('애플') || upperQuery.includes('APPLE')) {
-            data = mockDataDB['AAPL'];
-        } else {
-            data = getFallbackData(query);
+        let data = null;
+
+        if (query.includes('삼성') || query === '005930' || query === '005930.KS') data = mockDataDB['삼성전자'];
+        else if (upperQuery.includes('AAPL') || query.includes('애플') || upperQuery.includes('APPLE')) data = mockDataDB['AAPL'];
+        else {
+            // Fallback for other stocks in universe
+            const foundInUniverse = stockUniverse.find(s => s.ticker === upperQuery || s.name.toUpperCase().includes(upperQuery));
+            if (foundInUniverse) {
+                data = getDynamicFallbackData(foundInUniverse);
+            } else {
+                data = getDynamicFallbackData({ ticker: upperQuery, name: query });
+            }
         }
 
-        // Header
-        const today = new Date();
-        document.getElementById('report-date').textContent = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+        // DOM Update
+        document.getElementById('report-date').textContent = new Date().toISOString().split('T')[0];
         document.getElementById('company-name').textContent = data.name;
         document.getElementById('company-ticker').textContent = data.ticker;
-        
         const ratingVal = document.getElementById('rating-value');
         ratingVal.textContent = data.rating;
-        ratingVal.className = 'rating-value';
-        ratingVal.classList.add(data.rating.toLowerCase());
-        
+        ratingVal.className = `rating-value ${data.rating.toLowerCase()}`;
         document.getElementById('target-price').textContent = data.targetPrice;
         document.getElementById('current-price').textContent = data.currentPrice;
-
-        // Content
         document.getElementById('content-comprehensive').innerHTML = data.comprehensive;
         document.getElementById('content-overview').innerHTML = data.overview;
         document.getElementById('financial-text').innerHTML = data.financialText;
@@ -454,94 +307,58 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('content-momentum').innerHTML = data.momentum;
         document.getElementById('content-risk').innerHTML = data.riskText;
 
-        // Render Financial Table
         renderFinancialTable(data.financialTable);
-
-        // Render SWOT
         renderSwot(data.swot);
-
-        // Chart
         renderChart(data);
     }
 
+    function getDynamicFallbackData(stock) {
+        return {
+            name: stock.name || stock.ticker,
+            ticker: stock.ticker,
+            rating: stock.rating || 'HOLD',
+            targetPrice: 'AI 적정가 산출 중',
+            currentPrice: '시장가 반영 중',
+            comprehensive: `<p><strong>${stock.name}</strong>는 최근 AI 패러다임 변화와 매크로 환경 변화에 민감하게 반응하고 있는 기업입니다. 2024년 실적 전망치에 따르면, 동사는 수익성 위주의 사업 재편을 통해 안정적인 현금흐름을 확보하고 있습니다.</p>`,
+            overview: `<ul><li><strong>주요 사업:</strong> 해당 섹터 내 시장 점유율 상위권을 유지 중인 핵심 비즈니스 모델 보유.</li><li><strong>성장 동력:</strong> 기술 혁신을 통한 원가 절감 및 신규 시장(AI, 신흥국 등) 진입 가속화.</li></ul>`,
+            financialText: `<p>2024-2025년 예상 영업이익률은 업종 평균을 상회할 것으로 전망됩니다. 효율적인 자본 배분과 자사주 매입 등 주주 환원 정책이 강화되는 추세입니다.</p>`,
+            financialTable: [['지표', '2023(A)', '2024(E)', '2025(E)', '2026(E)'], ['매출액 지수', '100', '112', '125', '140'], ['이익 성장성', '보통', '높음', '매우높음', '안정'], ['ROE', '12%', '14%', '16%', '17%']],
+            financialChartData: [10, 15, 22, 28],
+            financialChartLabels: ['2023', '2024(E)', '2025(E)', '2026(E)'],
+            financialChartTitle: '추정 수익성 성장 (Index)',
+            industry: `<p>해당 업종은 현재 공급망 재편과 디지털 전환의 가시적인 성과가 나타나는 구간입니다. 경쟁사 대비 압도적인 R&D 투자 비중이 중장기적 해자(Moat)를 형성하고 있습니다.</p>`,
+            momentum: `<p>거래량 동반 상승세가 확인되며, 주요 이평선의 정배열 구간 진입으로 기술적 반등 모멘텀이 매우 강한 상태입니다.</p>`,
+            riskText: `<p>환율 변동성에 따른 환차손 리스크와 원자재 가격 상승에 따른 마진 압박 가능성을 상시 모니터링해야 합니다.</p>`,
+            swot: { s: ['강력한 브랜드 권력', '현금 보유력'], w: ['높은 밸류에이션 부담'], o: ['신규 시장 침투 확대'], t: ['규제 환경 변화'] }
+        };
+    }
+
+    // Helper functions for rendering
     function renderFinancialTable(tableData) {
-        const theadRow = document.querySelector('.financial-table thead tr');
+        const thead = document.querySelector('.financial-table thead tr');
         const tbody = document.getElementById('financial-table-body');
-        
-        if (!theadRow || !tbody) return;
-
-        // Extract headers from first row of data
-        const headers = tableData[0];
-        theadRow.innerHTML = '';
-        headers.forEach((h) => {
-            const th = document.createElement('th');
-            th.textContent = h;
-            theadRow.appendChild(th);
-        });
-
-        // Body rows
-        tbody.innerHTML = '';
-        for(let i=1; i<tableData.length; i++) {
-            const tr = document.createElement('tr');
-            tableData[i].forEach(cell => {
-                const td = document.createElement('td');
-                td.textContent = cell;
-                tr.appendChild(td);
-            });
-            tbody.appendChild(tr);
-        }
+        thead.innerHTML = tableData[0].map(h => `<th>${h}</th>`).join('');
+        tbody.innerHTML = tableData.slice(1).map(row => `<tr>${row.map(c => `<td>${c}</td>`).join('')}</tr>`).join('');
     }
 
     function renderSwot(swotData) {
         const container = document.getElementById('swot-container');
-        if (!container) return;
-        container.innerHTML = '';
-
-        const swotMap = [
-            { key: 's', title: 'Strength (강점)', class: 'swot-s', icon: '💪' },
-            { key: 'w', title: 'Weakness (약점)', class: 'swot-w', icon: '⚠️' },
-            { key: 'o', title: 'Opportunity (기회)', class: 'swot-o', icon: '🚀' },
-            { key: 't', title: 'Threat (위협)', class: 'swot-t', icon: '🛑' }
-        ];
-
-        swotMap.forEach(item => {
-            const itemsHtml = swotData[item.key].map(text => `<li>${text}</li>`).join('');
-            const html = `
-                <div class="swot-box ${item.class}">
-                    <h4>${item.icon} ${item.title}</h4>
-                    <ul>${itemsHtml}</ul>
-                </div>
-            `;
-            container.innerHTML += html;
-        });
+        const swotMap = [{ k: 's', t: 'Strength', c: 'swot-s', i: '💪' }, { k: 'w', t: 'Weakness', c: 'swot-w', i: '⚠️' }, { k: 'o', t: 'Opportunity', c: 'swot-o', i: '🚀' }, { k: 't', t: 'Threat', c: 'swot-t', i: '🛑' }];
+        container.innerHTML = swotMap.map(item => `
+            <div class="swot-box ${item.c}">
+                <h4>${item.i} ${item.t}</h4>
+                <ul>${swotData[item.k].map(text => `<li>${text}</li>`).join('')}</ul>
+            </div>
+        `).join('');
     }
 
     function renderChart(data) {
-        const canvas = document.getElementById('financialChart');
-        if (!canvas) return;
-        const ctx = canvas.getContext('2d');
+        const ctx = document.getElementById('financialChart').getContext('2d');
         if (financialChartInstance) financialChartInstance.destroy();
-
         financialChartInstance = new Chart(ctx, {
             type: 'bar',
-            data: {
-                labels: data.financialChartLabels,
-                datasets: [{
-                    label: data.financialChartTitle,
-                    data: data.financialChartData,
-                    backgroundColor: 'rgba(0, 82, 204, 0.7)',
-                    borderColor: 'rgba(0, 82, 204, 1)',
-                    borderWidth: 1,
-                    borderRadius: 4
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { position: 'top' }, title: { display: false } },
-                scales: { y: { beginAtZero: true } },
-                animation: { duration: 0 }
-            }
+            data: { labels: data.financialChartLabels, datasets: [{ label: data.financialChartTitle, data: data.financialChartData, backgroundColor: 'rgba(0, 82, 204, 0.7)', borderRadius: 4 }] },
+            options: { responsive: true, maintainAspectRatio: false, animation: { duration: 0 } }
         });
     }
 });
