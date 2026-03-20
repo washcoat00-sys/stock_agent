@@ -45,11 +45,20 @@ const mockDataDB = {
         rating: 'BUY',
         targetPrice: '105,000 KRW',
         currentPrice: '73,000 KRW',
-        comprehensive: "\n            <p><strong>반도체 사이클 회복과 온디바이스 AI 생태계 주도권 확보</strong></p>\n            <p>당사는 삼성전자에 대한 투자의견을 'BUY'로 유지하고, 목표주가를 105,000원으로 상향 조정합니다. 1) 장기간 이어졌던 메모리 반도체의 다운턴이 완전히 종료되고 수익성 위주의 '공급자 우위' 시장으로 전환되었습니다. 2) HBM(고대역폭메모리) 경쟁력 우려로 경쟁사 대비 과도하게 디스카운트 받았던 밸류에이션이 12단 HBM3E 고객사 퀄테스트 통과 모멘텀과 함께 빠르게 정상화될 것입니다.</p>\n            <p>뿐만 아니라, 자체 개발한 LLM(거대언어모델) '가우스'와 갤럭시 S 시리즈를 결합한 '온디바이스 AI' 생태계는 교체 주기가 길어진 스마트폰 시장에서 강력한 수요 촉매제(Catalyst)로 작용하여 MX 사업부의 견조한 이익 방어를 가능하게 할 것입니다.
-            </p>",
-        overview: "\n            <ul>\n                <li><strong>핵심 사업 구조:</strong> DS(디바이스 솔루션: 메모리/파운드리/LSI), DX(디바이스 경험: 모바일/가전/네트워크), SDC(디스플레이), Harman(전장)의 다각화된 포트폴리오를 보유한 글로벌 IT 통합 플랫폼.</li>\n                <li><strong>비즈니스 모델:</strong> 반도체 팹(Fab)에서의 초미세 공정 양산 능력과 세트(Set) 기기의 글로벌 판매망을 결합하여, 부품부터 완제품까지 자체 소화 및 외부 판매가 가능한 수직 계열화 구축.</li>\n                <li><strong>경영 전략 및 주주환원:</strong> '초격차 기술' 확보를 위해 연간 50조 원 이상의 CAPEX를 집행하며, 잉여현금흐름(FCF)의 50%를 환원하는 정규 배당 및 특별 배당 정책을 통해 주주가치 제고 중.</li>\n            </ul>\n        ",
-        financialText: "\n            <p><strong>[실적 코멘트] 감산 효과 극대화 및 ASP 상승에 따른 레버리지 효과</strong></p>\n            <p>전년도 대규모 적자를 기록했던 DS 부문이 공격적인 감산(Production Cut)과 선단 공정 전환(DDR5, HBM) 비중 확대를 통해 흑자 전환에 성공했습니다. 특히 D램과 낸드의 ASP(평균판매단가)가 전 분기 대비 두 자릿수 상승률을 기록하며 영업 레버리지 효과가 본격화되고 있습니다.</p>\n            <p>2024년 예상 매출액은 295조 원(+14% YoY), 영업이익은 38조 5천억 원(+485% YoY)으로 가파른 V자 반등이 추정됩니다. 스마트폰(MX) 부문 역시 AI 기능 탑재로 인한 ASP 상승으로 두 자릿수 영업이익률을 수성할 것으로 보입니다.
-            </p>",
+        comprehensive: `
+            <p><strong>반도체 사이클 회복과 온디바이스 AI 생태계 주도권 확보</strong></p>
+            <p>당사는 삼성전자에 대한 투자의견을 'BUY'로 유지하고, 목표주가를 105,000원으로 상향 조정합니다. 1) 장기간 이어졌던 메모리 반도체의 다운턴이 완전히 종료되고 수익성 위주의 '공급자 우위' 시장으로 전환되었습니다. 2) HBM(고대역폭메모리) 경쟁력 우려로 경쟁사 대비 과도하게 디스카운트 받았던 밸류에이션이 12단 HBM3E 고객사 퀄테스트 통과 모멘텀과 함께 빠르게 정상화될 것입니다.</p>
+            <p>뿐만 아니라, 자체 개발한 LLM(거대언어모델) '가우스'와 갤럭시 S 시리즈를 결합한 '온디바이스 AI' 생태계는 교체 주기가 길어진 스마트폰 시장에서 강력한 수요 촉매제(Catalyst)로 작용하여 MX 사업부의 견조한 이익 방어를 가능하게 할 것입니다.</p>`,
+        overview: `
+            <ul>
+                <li><strong>핵심 사업 구조:</strong> DS(디바이스 솔루션: 메모리/파운드리/LSI), DX(디바이스 경험: 모바일/가전/네트워크), SDC(디스플레이), Harman(전장)의 다각화된 포트폴리오를 보유한 글로벌 IT 통합 플랫폼.</li>
+                <li><strong>비즈니스 모델:</strong> 반도체 팹(Fab)에서의 초미세 공정 양산 능력과 세트(Set) 기기의 글로벌 판매망을 결합하여, 부품부터 완제품까지 자체 소화 및 외부 판매가 가능한 수직 계열화 구축.</li>
+                <li><strong>경영 전략 및 주주환원:</strong> '초격차 기술' 확보를 위해 연간 50조 원 이상의 CAPEX를 집행하며, 잉여현금흐름(FCF)의 50%를 환원하는 정규 배당 및 특별 배당 정책을 통해 주주가치 제고 중.</li>
+            </ul>`,
+        financialText: `
+            <p><strong>[실적 코멘트] 감산 효과 극대화 및 ASP 상승에 따른 레버리지 효과</strong></p>
+            <p>전년도 대규모 적자를 기록했던 DS 부문이 공격적인 감산(Production Cut)과 선단 공정 전환(DDR5, HBM) 비중 확대를 통해 흑자 전환에 성공했습니다. 특히 D램과 낸드의 ASP(평균판매단가)가 전 분기 대비 두 자릿수 상승률을 기록하며 영업 레버리지 효과가 본격화되고 있습니다.</p>
+            <p>2024년 예상 매출액은 295조 원(+14% YoY), 영업이익은 38조 5천억 원(+485% YoY)으로 가파른 V자 반등이 추정됩니다. 스마트폰(MX) 부문 역시 AI 기능 탑재로 인한 ASP 상승으로 두 자릿수 영업이익률을 수성할 것으로 보입니다.</p>`,
         financialTable: [
             ['매출액 (조 원)', '302.2', '258.9', '295.4', '325.1'],
             ['영업이익 (조 원)', '43.3', '6.5', '38.5', '52.4'],
@@ -61,12 +70,14 @@ const mockDataDB = {
         financialChartData: [43.3, 6.5, 38.5, 52.4],
         financialChartLabels: ['2022', '2023', '2024(E)', '2025(E)'],
         financialChartTitle: '연간 영업이익 추이 (조 원)',
-        industry: "\n            <p><strong>[메모리 산업]</strong> AI 서버 증설 경쟁에 따라 빅테크(CSP)들의 자본 지출이 증가하며 고용량 서버 D램 및 eSSD 수요가 폭발하고 있습니다. 공급 측면에서는 HBM의 다이(Die) 사이즈가 일반 D램 대비 커서 웨이퍼 캐파를 많이 잠식하므로, 레거시(범용) D램의 공급 부족 현상이 심화되어 가격 상승 사이클이 장기화될 전망입니다.</p>\n            <p><strong>[파운드리 경쟁]</strong> TSMC가 AI 가속기 칩 양산을 독점하다시피 하고 있어 점유율 격차를 좁히기는 쉽지 않으나, 3나노 이하 선단 공정(GAA 기술)에서의 수율 안정화와 메인 벤더들의 멀티 벤더(Multi-vendor) 전략 채택 시 삼성전자 파운드리의 낙수효과가 기대됩니다.
-            </p>",
-        momentum: "\n            <p><strong>[수급 분석]</strong> 최근 3개월간 외국인 투자자들은 국내 증시에서 삼성전자를 최우선 순위로 순매수하고 있습니다. 이는 글로벌 반도체 벤치마크 지수 대비 삼성전자의 상대적 소외 현상(Underperformance)이 해소되는 과정으로 해석됩니다.</p>\n            <p><strong>[기술적 분석]</strong> 주간 차트 기준 주요 매물대인 8만 원 선 돌파를 시도하고 있으며, 120일 이동평균선이 우상향으로 전환되었습니다. RSI(상대강도지수)는 60 부근으로 추가 상승 여력이 충분한 구간입니다.
-            </p>",
-        riskText: "\n            <p>전사 실적에 가장 큰 영향을 미치는 핵심 리스크는 다음과 같습니다.
-            </p>",
+        industry: `
+            <p><strong>[메모리 산업]</strong> AI 서버 증설 경쟁에 따라 빅테크(CSP)들의 자본 지출이 증가하며 고용량 서버 D램 및 eSSD 수요가 폭발하고 있습니다. 공급 측면에서는 HBM의 다이(Die) 사이즈가 일반 D램 대비 커서 웨이퍼 캐파를 많이 잠식하므로, 레거시(범용) D램의 공급 부족 현상이 심화되어 가격 상승 사이클이 장기화될 전망입니다.</p>
+            <p><strong>[파운드리 경쟁]</strong> TSMC가 AI 가속기 칩 양산을 독점하다시피 하고 있어 점유율 격차를 좁히기는 쉽지 않으나, 3나노 이하 선단 공정(GAA 기술)에서의 수율 안정화와 메인 벤더들의 멀티 벤더(Multi-vendor) 전략 채택 시 삼성전자 파운드리의 낙수효과가 기대됩니다.</p>`,
+        momentum: `
+            <p><strong>[수급 분석]</strong> 최근 3개월간 외국인 투자자들은 국내 증시에서 삼성전자를 최우선 순위로 순매수하고 있습니다. 이는 글로벌 반도체 벤치마크 지수 대비 삼성전자의 상대적 소외 현상(Underperformance)이 해소되는 과정으로 해석됩니다.</p>
+            <p><strong>[기술적 분석]</strong> 주가는 장기 저항선인 8만 원 선 돌파를 시도하고 있으며, 120일 이동평균선이 우상향으로 전환되었습니다. RSI(상대강도지수)는 60 부근으로 추가 상승 여력이 충분한 구간입니다.</p>`,
+        riskText: `
+            <p>전사 실적에 가장 큰 영향을 미치는 핵심 리스크는 다음과 같습니다.</p>`,
         swot: {
             s: [
                 '메모리 반도체 원가 경쟁력 및 막강한 현금 창출력',
@@ -92,11 +103,20 @@ const mockDataDB = {
         rating: 'BUY',
         targetPrice: '$235.00',
         currentPrice: '$185.20',
-        comprehensive: "\n            <p><strong>\'Apple Intelligence\'가 촉발할 강력한 하드웨어 교체 사이클</strong></p>\n            <p>애플은 20억 대 이상의 활성 기기(Active Installed Base)를 바탕으로 단순한 하드웨어 판매를 넘어 '서비스 생태계'에서 막대한 현금을 창출하고 있습니다. 최근 WWDC에서 발표된 'Apple Intelligence'는 개인정보 보호를 최우선으로 하는 온디바이스 AI와 클라우드 AI의 하이브리드 모델을 제시하며 시장의 AI 뒤처짐 우려를 일거에 해소했습니다.</p>\n            <p>새로운 AI 기능은 iPhone 15 Pro 이상의 고사양 모델에서만 제한적으로 구동되므로, 구형 모델 사용자들의 대규모 업그레이드(Super Cycle)를 강제할 것입니다. 서비스 매출의 고성장과 하드웨어 판매의 반등이 겹치는 향후 2년은 애플에게 새로운 성장 국면이 될 것입니다.
-            </p>",
-        overview: "\n            <ul>\n                <li><strong>핵심 사업 구조:</strong> 하드웨어(iPhone 비중 약 50%, Mac, iPad, Wearables)와 고수익 서비스(App Store, Apple Music, iCloud, Apple Pay, 라이선싱 등) 부문으로 구성.</li>\n                <li><strong>비즈니스 모델:</strong> iOS/macOS라는 폐쇄적이지만 압도적인 사용자 경험을 제공하는 소프트웨어 생태계를 통해 고객 락인(Lock-in)을 극대화하고, 서비스 구독 모델로 LTV(고객생애가치)를 높임.</li>\n                <li><strong>자체 칩셋 역량:</strong> ARM 아키텍처 기반의 A-시리즈(모바일) 및 M-시리즈(PC/태블릿) 실리콘 자체 설계를 통해 타사 대비 전력 효율성과 연산 성능에서 압도적 우위 점함.</li>\n            </ul>\n        ",
-        financialText: "\n            <p><strong>[실적 코멘트] 서비스 마진율 상승이 견인하는 구조적 이익 성장</strong></p>\n            <p>최근 분기 실적에서 하드웨어 매출 성장은 중국 시장 부진 등으로 둔화되었으나, 서비스 부문의 매출이 전년 동기 대비 14% 증가하며 사상 최고치를 경신했습니다. 특히 서비스 부문의 매출총이익률(Gross Margin)은 74%를 상회하여 전사 마진율 개선을 주도하고 있습니다.</p>\n            <p>경이로운 잉여현금흐름(연간 약 1,000억 달러 수준)을 바탕으로 역사상 최대 규모인 1,100억 달러의 자사주 매입 프로그램을 발표했습니다. 이는 EPS(주당순이익)의 지속적인 우상향을 담보하는 핵심 재무 전략입니다.
-            </p>",
+        comprehensive: `
+            <p><strong>'Apple Intelligence'가 촉발할 강력한 하드웨어 교체 사이클</strong></p>
+            <p>애플은 20억 대 이상의 활성 기기(Active Installed Base)를 바탕으로 단순한 하드웨어 판매를 넘어 '서비스 생태계'에서 막대한 현금을 창출하고 있습니다. 최근 WWDC에서 발표된 'Apple Intelligence'는 개인정보 보호를 최우선으로 하는 온디바이스 AI와 클라우드 AI의 하이브리드 모델을 제시하며 시장의 AI 뒤처짐 우려를 일거에 해소했습니다.</p>
+            <p>새로운 AI 기능은 iPhone 15 Pro 이상의 고사양 모델에서만 제한적으로 구동되므로, 구형 모델 사용자들의 대규모 업그레이드(Super Cycle)를 강제할 것입니다. 서비스 매출의 고성장과 하드웨어 판매의 반등이 겹치는 향후 2년은 애플에게 새로운 성장 국면이 될 것입니다.</p>`,
+        overview: `
+            <ul>
+                <li><strong>핵심 사업 구조:</strong> 하드웨어(iPhone 비중 약 50%, Mac, iPad, Wearables)와 고수익 서비스(App Store, Apple Music, iCloud, Apple Pay, 라이선싱 등) 부문으로 구성.</li>
+                <li><strong>비즈니스 모델:</strong> iOS/macOS라는 폐쇄적이지만 압도적인 사용자 경험을 제공하는 소프트웨어 생태계를 통해 고객 락인(Lock-in)을 극대화하고, 서비스 구독 모델로 LTV(고객생애가치)를 높임.</li>
+                <li><strong>자체 칩셋 역량:</strong> ARM 아키텍처 기반의 A-시리즈(모바일) 및 M-시리즈(PC/태블릿) 실리콘 자체 설계를 통해 타사 대비 전력 효율성과 연산 성능에서 압도적 우위 점함.</li>
+            </ul>`,
+        financialText: `
+            <p><strong>[실적 코멘트] 서비스 마진율 상승이 견인하는 구조적 이익 성장</strong></p>
+            <p>최근 분기 실적에서 하드웨어 매출 성장은 중국 시장 부진 등으로 둔화되었으나, 서비스 부문의 매출이 전년 동기 대비 14% 증가하며 사상 최고치를 경신했습니다. 특히 서비스 부문의 매출총이익률(Gross Margin)은 74%를 상회하여 전사 마진율 개선을 주도하고 있습니다.</p>
+            <p>경이로운 잉여현금흐름(연간 약 1,000억 달러 수준)을 바탕으로 역사상 최대 규모인 1,100억 달러의 자사주 매입 프로그램을 발표했습니다. 이는 EPS(주당순이익)의 지속적인 우상향을 담보하는 핵심 재무 전략입니다.</p>`,
         financialTable: [
             ['매출액 (Billion $)', '394.3', '383.2', '390.5', '415.8'],
             ['영업이익 (Billion $)', '119.4', '114.3', '118.2', '128.5'],
@@ -108,12 +128,14 @@ const mockDataDB = {
         financialChartData: [119.4, 114.3, 118.2, 128.5],
         financialChartLabels: ['FY22', 'FY23', 'FY24(E)', 'FY25(E)'],
         financialChartTitle: 'Operating Income (Billion USD)',
-        industry: "\n            <p><strong>[프리미엄 폰 시장 독식]</strong> 글로벌 스마트폰 출하량은 역성장 혹은 정체 중이나, 600달러 이상의 프리미엄 스마트폰 시장은 견조하게 성장하고 있습니다. 애플은 이 고가 시장에서 70% 이상의 점유율을 차지하며 산업 내 이익을 사실상 독식하고 있습니다.</p>\n            <p><strong>[공간 컴퓨팅과 웨어러블]</strong> Vision Pro의 초기 판매량은 높지 않으나, '공간 컴퓨팅(Spatial Computing)'이라는 새로운 폼팩터의 기준을 제시했습니다. 향후 원가 절감형 모델이 출시될 경우 스마트폰을 잇는 차세대 디바이스 생태계의 중심축이 될 잠재력이 있습니다.
-            </p>",
-        momentum: "\n            <p><strong>[수급 및 센티먼트]</strong> AI 내러티브 부재로 연초 마이크로소프트와 엔비디아에 시가총액 1위 자리를 내주며 기관 투자자들의 비중 축소가 있었습니다. 그러나 WWDC 이후 월가 애널리스트들의 목표가 상향 리포트가 쏟아지며 강력한 숏커버링과 신규 매수세가 유입되었습니다.</p>\n            <p><strong>[기술적 분석]</strong> 주가는 장기 저항선인 195달러 선을 강한 거래량과 함께 돌파(Breakout)하며 사상 최고치 경신 랠리에 돌입했습니다. 단기 이격도가 벌어졌으나, 조정 시 매수(Buy on dips) 전략이 유효한 상승 추세입니다.
-            </p>",
-        riskText: "\n            <p>전사 실적에 가장 큰 영향을 미치는 핵심 리스크는 다음과 같습니다.
-            </p>",
+        industry: `
+            <p><strong>[프리미엄 폰 시장 독식]</strong> 글로벌 스마트폰 출하량은 역성장 혹은 정체 중이나, 600달러 이상의 프리미엄 스마트폰 시장은 견조하게 성장하고 있습니다. 애플은 이 고가 시장에서 70% 이상의 점유율을 차지하며 산업 내 이익을 사실상 독식하고 있습니다.</p>
+            <p><strong>[공간 컴퓨팅과 웨어러블]</strong> Vision Pro의 초기 판매량은 높지 않으나, '공간 컴퓨팅(Spatial Computing)'이라는 새로운 폼팩터의 기준을 제시했습니다. 향후 원가 절감형 모델이 출시될 경우 스마트폰을 잇는 차세대 디바이스 생태계의 중심축이 될 잠재력이 있습니다.</p>`,
+        momentum: `
+            <p><strong>[수급 및 센티먼트]</strong> AI 내러티브 부재로 연초 마이크로소프트와 엔비디아에 시가총액 1위 자리를 내주며 기관 투자자들의 비중 축소가 있었습니다. 그러나 WWDC 이후 월가 애널리스트들의 목표가 상향 리포트가 쏟아지며 강력한 숏커버링과 신규 매수세가 유입되었습니다.</p>
+            <p><strong>[기술적 분석]</strong> 주가는 장기 저항선인 195달러 선을 강한 거래량과 함께 돌파(Breakout)하며 사상 최고치 경신 랠리에 돌입했습니다. 단기 이격도가 벌어졌으나, 조정 시 매수(Buy on dips) 전략이 유효한 상승 추세입니다.</p>`,
+        riskText: `
+            <p>전사 실적에 가장 큰 영향을 미치는 핵심 리스크는 다음과 같습니다.</p>`,
         swot: {
             s: [
                 '비교 불가능한 브랜드 충성도 및 하드웨어/소프트웨어 통합 생태계',
@@ -173,7 +195,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const logoHome = document.getElementById('logo-home');
     const homeView = document.getElementById('home-view');
     const reportContainer = document.getElementById('report-container');
-    // const emptyState = document.getElementById('empty-state'); Removed since it's no longer in index.html
     
     // Top bar search
     const topStockInput = document.getElementById('stock-input');
@@ -255,12 +276,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // Show loading
-        homeView.classList.add('hidden');
-        reportContainer.classList.add('hidden');
-        
         loadingMsg.textContent = '입력하신 상황(테마)을 분석하여 최적의 수혜주를 탐색 중입니다...';
         loadingSubMsg.textContent = '거시경제 데이터, 밸류체인 연관성, 과거 주가 상관계수를 연산 중입니다.';
         loadingOverlay.classList.remove('hidden');
+        recommendationResults.classList.add('hidden');
 
         setTimeout(() => {
             // Find matching theme
@@ -277,7 +296,6 @@ document.addEventListener('DOMContentLoaded', () => {
             renderRecommendations(matchedTheme);
             
             loadingOverlay.classList.add('hidden');
-            homeView.classList.remove('hidden');
             recommendationResults.classList.remove('hidden');
             recommendationResults.scrollIntoView({ behavior: 'smooth' });
         }, 2000);
@@ -321,7 +339,6 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        homeView.classList.add('hidden');
         reportContainer.classList.add('hidden');
         downloadPdfBtn.disabled = true;
         
@@ -330,18 +347,25 @@ document.addEventListener('DOMContentLoaded', () => {
         loadingOverlay.classList.remove('hidden');
 
         setTimeout(() => {
-            generateReport(query);
-            loadingOverlay.classList.add('hidden');
-            reportContainer.classList.remove('hidden');
-            downloadPdfBtn.disabled = false;
-            
-            reportContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            try {
+                generateReport(query);
+                loadingOverlay.classList.add('hidden');
+                homeView.classList.add('hidden');
+                reportContainer.classList.remove('hidden');
+                downloadPdfBtn.disabled = false;
+                
+                reportContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            } catch (error) {
+                console.error('Report Generation Error:', error);
+                alert('리포트 생성 중 오류가 발생했습니다.');
+                loadingOverlay.classList.add('hidden');
+            }
         }, 2500);
     }
 
     function generateReport(query) {
         const upperQuery = query.toUpperCase();
-        let data = mockDataDB['삼성전자']; 
+        let data = null; 
         
         if (query.includes('삼성') || query === '005930' || query === '005930.KS') {
             data = mockDataDB['삼성전자'];
@@ -387,10 +411,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const theadRow = document.querySelector('.financial-table thead tr');
         const tbody = document.getElementById('financial-table-body');
         
+        if (!theadRow || !tbody) return;
+
         // Extract headers from first row of data
         const headers = tableData[0];
         theadRow.innerHTML = '';
-        headers.forEach((h, index) => {
+        headers.forEach((h) => {
             const th = document.createElement('th');
             th.textContent = h;
             theadRow.appendChild(th);
@@ -411,6 +437,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderSwot(swotData) {
         const container = document.getElementById('swot-container');
+        if (!container) return;
         container.innerHTML = '';
 
         const swotMap = [
@@ -433,7 +460,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function renderChart(data) {
-        const ctx = document.getElementById('financialChart').getContext('2d');
+        const canvas = document.getElementById('financialChart');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
         if (financialChartInstance) financialChartInstance.destroy();
 
         financialChartInstance = new Chart(ctx, {
@@ -451,6 +480,7 @@ document.addEventListener('DOMContentLoaded', () => {
             },
             options: {
                 responsive: true,
+                maintainAspectRatio: false,
                 plugins: { legend: { position: 'top' }, title: { display: false } },
                 scales: { y: { beginAtZero: true } },
                 animation: { duration: 0 }
