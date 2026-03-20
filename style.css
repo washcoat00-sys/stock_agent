@@ -9,6 +9,7 @@
     --success: #00875a;
     --warning: #ff991f;
     --danger: #de350b;
+    --card-bg: #ffffff;
 }
 
 * {
@@ -44,6 +45,7 @@ body {
     font-weight: 700;
     font-size: 20px;
     color: var(--primary-color);
+    cursor: pointer;
 }
 
 .logo svg {
@@ -55,7 +57,7 @@ body {
     display: flex;
     gap: 10px;
     flex-grow: 1;
-    max-width: 600px;
+    max-width: 500px;
     margin: 0 20px;
 }
 
@@ -111,31 +113,6 @@ button:disabled {
     display: none !important;
 }
 
-/* 초기 빈 상태 */
-#empty-state {
-    text-align: center;
-    margin-top: 150px;
-    color: var(--text-light);
-}
-
-.empty-icon {
-    width: 64px;
-    height: 64px;
-    margin: 0 auto 20px;
-    color: var(--border-color);
-}
-
-#empty-state h2 {
-    font-size: 24px;
-    color: var(--text-color);
-    margin-bottom: 10px;
-}
-
-.suggestion {
-    margin-top: 20px;
-    font-size: 14px;
-}
-
 /* 로딩 오버레이 */
 #loading-overlay {
     position: fixed;
@@ -176,7 +153,173 @@ button:disabled {
     font-weight: normal;
 }
 
-/* 리포트 스타일 */
+/* --- 홈 / 상황 입력 화면 (Home View) --- */
+#home-view {
+    max-width: 900px;
+    margin: 60px auto;
+    padding: 0 20px;
+}
+
+.hero-section {
+    text-align: center;
+    background: var(--white);
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    margin-bottom: 40px;
+}
+
+.hero-section h2 {
+    font-size: 28px;
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: var(--text-color);
+}
+
+.hero-section p {
+    color: var(--text-light);
+    margin-bottom: 30px;
+}
+
+.situation-input-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+#situation-input {
+    width: 100%;
+    padding: 16px;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 16px;
+    font-family: inherit;
+    resize: vertical;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+#situation-input:focus {
+    border-color: var(--primary-color);
+}
+
+#recommend-btn {
+    align-self: center;
+    padding: 14px 30px;
+    font-size: 16px;
+    background-color: #0065ff;
+}
+
+.quick-tags {
+    margin-top: 25px;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.tag {
+    background-color: var(--bg-color);
+    color: var(--text-light);
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 1px solid var(--border-color);
+}
+
+.tag:hover {
+    background-color: #e6effc;
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+/* 추천 결과 영역 */
+#recommendation-results h3 {
+    font-size: 22px;
+    margin-bottom: 5px;
+}
+
+.theme-description {
+    color: var(--text-light);
+    margin-bottom: 25px;
+}
+
+.card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+.stock-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 20px;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.stock-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0,82,204,0.15);
+    border-color: var(--primary-color);
+}
+
+.stock-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.stock-card-name {
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.stock-card-ticker {
+    font-size: 13px;
+    color: var(--text-light);
+    background: var(--bg-color);
+    padding: 4px 8px;
+    border-radius: 4px;
+}
+
+.stock-card-reason {
+    font-size: 14px;
+    color: #42526e;
+    line-height: 1.5;
+    margin-bottom: 15px;
+}
+
+.stock-card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid var(--bg-color);
+    padding-top: 12px;
+}
+
+.card-rating {
+    font-weight: 700;
+    font-size: 14px;
+}
+.card-rating.buy { color: var(--success); }
+.card-rating.hold { color: var(--warning); }
+.card-rating.sell { color: var(--danger); }
+
+.card-action {
+    color: var(--primary-color);
+    font-size: 13px;
+    font-weight: 500;
+}
+
+
+/* --- 리포트 스타일 (Report View) --- */
 #report-container {
     max-width: 900px;
     margin: 40px auto;
@@ -293,14 +436,84 @@ button:disabled {
     margin-bottom: 10px;
 }
 
+/* 심층 재무 테이블 */
+.data-table-container {
+    margin: 25px 0;
+    overflow-x: auto;
+}
+
+.financial-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    text-align: right;
+}
+
+.financial-table th, .financial-table td {
+    padding: 12px 15px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.financial-table th {
+    background-color: #fafbfc;
+    color: var(--text-light);
+    font-weight: 600;
+    text-align: right;
+}
+
+.financial-table th:first-child, .financial-table td:first-child {
+    text-align: left;
+    font-weight: 600;
+    color: var(--text-color);
+    background-color: #fafbfc;
+}
+
+.financial-table tr:hover td {
+    background-color: #f4f5f7;
+}
+
+/* 차트 컨테이너 */
 .chart-container {
     width: 100%;
-    max-width: 600px;
+    max-width: 700px;
     margin: 30px auto;
     background: #fff;
-    padding: 15px;
+    padding: 20px;
     border-radius: 8px;
     border: 1px solid var(--border-color);
+}
+
+/* SWOT 컨테이너 */
+.swot-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-top: 25px;
+}
+
+.swot-box {
+    padding: 15px;
+    border-radius: 8px;
+    border-left: 4px solid;
+    background-color: #fafbfc;
+}
+
+.swot-s { border-color: #00875a; }
+.swot-w { border-color: #ff991f; }
+.swot-o { border-color: #0052cc; }
+.swot-t { border-color: #de350b; }
+
+.swot-box h4 {
+    margin: 0 0 10px 0;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.swot-box ul {
+    margin: 0;
+    padding-left: 20px;
+    font-size: 14px;
 }
 
 .report-footer {
@@ -329,6 +542,12 @@ button:disabled {
         width: 100%;
         justify-content: center;
     }
+    #home-view {
+        margin: 20px auto;
+    }
+    .swot-container {
+        grid-template-columns: 1fr;
+    }
     #report-container {
         margin: 15px;
     }
@@ -345,10 +564,10 @@ button:disabled {
 /* 인쇄 및 PDF 내보내기 최적화 */
 @media print {
     body { background-color: var(--white); }
-    .top-bar { display: none !important; }
+    .top-bar, #home-view { display: none !important; }
     #report-container { box-shadow: none; margin: 0; max-width: 100%; }
     #pdf-content { padding: 0; }
     .report-section { page-break-inside: avoid; }
-    .chart-container { page-break-inside: avoid; }
+    .chart-container, .swot-container, .data-table-container { page-break-inside: avoid; }
     @page { margin: 15mm; }
 }
