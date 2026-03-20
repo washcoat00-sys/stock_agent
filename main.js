@@ -3,40 +3,86 @@
 let financialChartInstance = null;
 
 // ========================================== 
-// 1. 테마 및 상황별 추천 종목 DB
+// 1. 테마 및 상황별 추천 종목 DB (각 8개 종목)
 // ========================================== 
 const themeDB = [
     {
-        keywords: ['금리 인하', '금리인하', '유동성', 'rate cut'],
+        keywords: ['금리 인하', '금리인하', '유동성', 'rate cut', '비둘기', '파월'],
         themeName: '금리 인하 수혜주 (성장주 및 배당주)',
         description: '기준금리 인하 시 자금 조달 비용이 감소하여 고정비 비중이 높은 성장주(기술주)의 미래 가치가 높아집니다. 또한, 상대적으로 배당 매력이 부각되는 리츠(REITs)나 고배당주로 자금이 유입될 수 있습니다.',
         recommendations: [
             { ticker: 'AAPL', name: 'Apple Inc.', reason: '저금리 환경에서 풍부한 유동성을 바탕으로 한 자사주 매입 강화 및 밸류에이션 리레이팅 기대.', rating: 'BUY' },
-            { ticker: 'NAVER', name: 'NAVER', reason: '대표적인 국내 플랫폼 성장주로, 금리 인하 시 미래 현금흐름의 현재 가치 할인율이 낮아져 밸류에이션 회복 수혜.', rating: 'BUY' }
+            { ticker: 'NAVER', name: 'NAVER', reason: '대표적인 국내 플랫폼 성장주로, 금리 인하 시 미래 현금흐름의 현재 가치 할인율이 낮아져 밸류에이션 회복 수혜.', rating: 'BUY' },
+            { ticker: 'O', name: 'Realty Income', reason: '대표적인 월배당 상업용 리츠(REITs)로, 조달 비용 감소 및 시중 금리 하락 시 배당 수익률 매력이 크게 부각됨.', rating: 'BUY' },
+            { ticker: 'NEE', name: 'NextEra Energy', reason: '세계 최대의 신재생 에너지 유틸리티 기업. 자본 집약적 산업 특성상 금리 인하 시 이자 비용 절감 및 프로젝트 수익성 급증.', rating: 'BUY' },
+            { ticker: 'T', name: 'AT&T', reason: '안정적인 현금흐름을 바탕으로 한 고배당 통신주. 채권 수익률 하락 시 대체 투자처로 기관 자금 유입 가능성 높음.', rating: 'HOLD' },
+            { ticker: '035720.KS', name: '카카오', reason: '매크로 환경 악화로 소외되었으나, 금리 인하 시 성장 둔화 우려 해소 및 플랫폼 사업 이익 턴어라운드 기대.', rating: 'HOLD' },
+            { ticker: 'IWF', name: 'Russell 1000 Growth ETF', reason: '미국 대형 우량 성장주 전반에 분산 투자하여, 유동성 장세 진입 시 지수 대비 초과 수익(Alpha) 달성 목표.', rating: 'BUY' },
+            { ticker: 'TLT', name: '20+ Year Treasury Bond ETF', reason: '미국 장기 국채에 투자. 기준금리 인하 사이클 본격화 시 국채 금리 하락(채권 가격 상승)에 따른 직접적인 자본 차익 수혜.', rating: 'BUY' }
         ]
     },
     {
-        keywords: ['ai', '인공지능', '반도체', 'hbm', '슈퍼사이클', '온디바이스'],
+        keywords: ['ai', '인공지능', '반도체', 'hbm', '슈퍼사이클', '온디바이스', '소프트웨어', '데이터센터'],
         themeName: 'AI 패러다임 전환 및 반도체 슈퍼사이클',
-        description: '생성형 AI의 발전으로 데이터센터 향 고성능 AI 칩 및 HBM(고대역폭메모리) 수요가 폭증하고 있습니다. 향후 스마트폰과 PC에 AI가 탑재되는 \'온디바이스 AI\' 시대로 접어들며 반도체 기업들의 구조적 실적 성장이 예상됩니다.',
+        description: '생성형 AI의 발전으로 데이터센터 향 고성능 AI 칩 및 HBM(고대역폭메모리) 수요가 폭증하고 있습니다. 향후 스마트폰과 PC에 AI가 탑재되는 \'온디바이스 AI\' 시대로 접어들며 반도체 및 소프트웨어 기업들의 구조적 실적 성장이 예상됩니다.',
         recommendations: [
             { ticker: '005930.KS', name: '삼성전자', reason: 'HBM3E 양산 본격화 및 온디바이스 AI가 탑재된 갤럭시 시리즈 판매 호조에 따른 실적 턴어라운드.', rating: 'BUY' },
-            { ticker: 'NVDA', name: 'NVIDIA Corp.', reason: '글로벌 AI 가속기 시장 점유율 90% 이상을 장악하며 독점적인 잉여현금흐름 창출.', rating: 'BUY' }
+            { ticker: 'NVDA', name: 'NVIDIA Corp.', reason: '글로벌 AI 가속기 시장 점유율 90% 이상을 장악하며 독점적인 잉여현금흐름 창출.', rating: 'BUY' },
+            { ticker: 'MSFT', name: 'Microsoft', reason: 'OpenAI와의 강력한 파트너십을 바탕으로 클라우드(Azure)와 오피스 제품군에 AI를 성공적으로 수익화 중인 최대 수혜주.', rating: 'BUY' },
+            { ticker: '000660.KS', name: 'SK하이닉스', reason: '엔비디아 향 HBM(고대역폭메모리) 핵심 공급사로서, AI 서버 증설 경쟁의 가장 직접적이고 확실한 국내 수혜주.', rating: 'BUY' },
+            { ticker: 'TSM', name: 'TSMC', reason: '글로벌 파운드리(반도체 위탁생산) 1위. 엔비디아, AMD, 애플 등 글로벌 빅테크의 첨단 AI 칩을 사실상 독점 생산.', rating: 'BUY' },
+            { ticker: 'ASML', name: 'ASML Holding', reason: '초미세 반도체 공정에 필수적인 EUV(극자외선) 노광장비를 전 세계에서 유일하게 독점 공급하는 슈퍼 을(乙).', rating: 'BUY' },
+            { ticker: 'AVGO', name: 'Broadcom', reason: '구글, 메타 등의 맞춤형 AI 실리콘(ASIC) 설계 및 데이터센터 네트워크 스위치 칩 분야의 절대 강자.', rating: 'BUY' },
+            { ticker: 'PLTR', name: 'Palantir Technologies', reason: '기업 및 정부 기관을 위한 AI 기반 데이터 분석 플랫폼(AIP) 수요 폭발로 흑자 전환 및 폭발적 마진 확장 국면.', rating: 'BUY' }
         ]
     },
     {
-        keywords: ['고령화', '헬스케어', '바이오', '인구구조', '제약'],
+        keywords: ['고령화', '헬스케어', '바이오', '인구구조', '제약', '의료기기', '신약'],
         themeName: '인구 고령화 및 헬스케어 메가트렌드',
         description: '글로벌 인구 고령화가 가속화됨에 따라 만성질환 치료제, 비만 치료제, 그리고 의료기기(임플란트, 덴탈 등) 산업의 장기적인 우상향이 기대됩니다. 특히 빅파마들의 M&A와 신약 파이프라인 가치가 중요합니다.',
         recommendations: [
-            { ticker: 'LLY', name: 'Eli Lilly', reason: 'GLP-1 계열 비만 및 당뇨 치료제(마운자로, 젭바운드)의 폭발적인 글로벌 수요 증가.', rating: 'BUY' },
-            { ticker: '207940.KS', name: '삼성바이오로직스', reason: '안정적인 CDMO 위탁 생산 캐파 확장을 통해 고령화 시대의 바이오 의약품 수요에 대응.', rating: 'BUY' }
+            { ticker: 'LLY', name: 'Eli Lilly', reason: 'GLP-1 계열 비만 및 당뇨 치료제(마운자로, 젭바운드)의 폭발적인 글로벌 수요 증가 및 적응증 확대.', rating: 'BUY' },
+            { ticker: '207940.KS', name: '삼성바이오로직스', reason: '안정적인 CDMO 위탁 생산 캐파 확장을 통해 고령화 시대의 바이오 의약품 수요에 적극 대응.', rating: 'BUY' },
+            { ticker: 'NVO', name: 'Novo Nordisk', reason: '위고비, 오젬픽 등 블록버스터 비만 치료제 시장을 양분하며 막대한 현금 창출 및 심혈관 질환 등 적응증 확장.', rating: 'BUY' },
+            { ticker: 'ISRG', name: 'Intuitive Surgical', reason: '다빈치 로봇 수술기를 통해 글로벌 최소침습수술 시장을 독점. 고령화에 따른 수술 건수 증가로 영구적인 소모품 매출 성장.', rating: 'BUY' },
+            { ticker: 'UNH', name: 'UnitedHealth Group', reason: '미국 최대의 건강보험 및 의료 서비스 네트워크 기업. 메디케어 어드밴티지 가입자 증가로 안정적인 두자릿수 이익 성장.', rating: 'BUY' },
+            { ticker: 'JNJ', name: 'Johnson & Johnson', reason: '제약과 의료기기 포트폴리오가 잘 분산된 글로벌 헬스케어 대장주. 뛰어난 방어력과 지속적인 배당 성장 매력.', rating: 'HOLD' },
+            { ticker: '068270.KS', name: '셀트리온', reason: '다양한 바이오시밀러 포트폴리오 직판 체제 구축 및 자가면역질환 신약 짐펜트라의 미국 시장 안착 모멘텀.', rating: 'BUY' },
+            { ticker: 'SYK', name: 'Stryker Corp.', reason: '정형외과 수술용 로봇(Mako) 및 인공관절 분야 글로벌 선두. 노인 인구 증가에 따른 무릎/고관절 교체 수요 폭증 수혜.', rating: 'BUY' }
         ]
     }
 ];
 
+// 매칭되는 키워드가 없을 때 제공할 동적 포트폴리오 (우량주 및 가치주 중심 8개 종목)
+const generalFallbackRecommendations = [
+    { ticker: 'GOOGL', name: 'Alphabet Inc.', reason: '강력한 검색 독점력과 유튜브, 클라우드 부문의 견조한 성장. AI 기술 도입을 통한 광고 단가 상승 및 효율성 개선 기대.', rating: 'BUY' },
+    { ticker: 'AMZN', name: 'Amazon.com', reason: '이커머스 부문의 압도적 물류 효율화와 마진율 70% 이상의 아마존 웹 서비스(AWS) 성장이 구조적 이익 창출을 견인.', rating: 'BUY' },
+    { ticker: 'BRK.B', name: 'Berkshire Hathaway', reason: '막대한 현금성 자산을 바탕으로 한 워런 버핏의 가치투자 포트폴리오. 불확실한 매크로 환경에서 최고의 방어력 제공.', rating: 'BUY' },
+    { ticker: 'JPM', name: 'JPMorgan Chase', reason: '글로벌 1위 금융기관. 고금리 환경에서의 이자 이익 극대화 및 탄탄한 대손충당금을 통한 매크로 변동성 방어력 우수.', rating: 'BUY' },
+    { ticker: 'V', name: 'Visa Inc.', reason: '글로벌 결제 네트워크 독점. 인플레이션 환경에서 명목 결제 금액 증가에 따라 매출이 자연스럽게 상승하는 강력한 인플레 헷지.', rating: 'BUY' },
+    { ticker: 'COST', name: 'Costco Wholesale', reason: '회원제 기반의 강력한 고객 충성도. 경기 침체 우려 속에서도 가성비를 찾는 소비자들의 필수소비재 수요가 몰리며 호실적 기록.', rating: 'BUY' },
+    { ticker: 'XOM', name: 'Exxon Mobil', reason: '에너지 가격 하방 경직성 확보. 강력한 잉여현금흐름을 기반으로 한 대규모 자사주 매입 및 배당 확대로 주주환원율 최고 수준.', rating: 'HOLD' },
+    { ticker: '005380.KS', name: '현대차', reason: '전기차(EV) 전환 지연 속 하이브리드(HEV) 차종 믹스 개선으로 역대 최대 영업이익 달성 및 선진 시장 점유율 지속 확대.', rating: 'BUY' }
+];
+
+// 범용 리포트를 위한 티커-종목명 딕셔너리
+const tickerToName = {
+    'O': 'Realty Income (리얼티 인컴)', 'NEE': 'NextEra Energy (넥스테라 에너지)', 'T': 'AT&T', '035720.KS': '카카오 (Kakao)',
+    'IWF': 'Russell 1000 Growth ETF', 'TLT': '20+ Year Treasury Bond ETF',
+    'MSFT': 'Microsoft (마이크로소프트)', '000660.KS': 'SK하이닉스 (SK Hynix)', 'TSM': 'TSMC', 'ASML': 'ASML Holding',
+    'AVGO': 'Broadcom (브로드컴)', 'PLTR': 'Palantir Technologies (팔란티어)',
+    'LLY': 'Eli Lilly (일라이 릴리)', '207940.KS': '삼성바이오로직스', 'NVO': 'Novo Nordisk (노보 노디스크)',
+    'ISRG': 'Intuitive Surgical (인튜이티브 서지컬)', 'UNH': 'UnitedHealth Group (유나이티드헬스)', 'JNJ': 'Johnson & Johnson (존슨앤존슨)',
+    '068270.KS': '셀트리온 (Celltrion)', 'SYK': 'Stryker Corp. (스트라이커)',
+    'GOOGL': 'Alphabet Inc. (구글)', 'AMZN': 'Amazon.com (아마존)', 'BRK.B': 'Berkshire Hathaway (버크셔 해서웨이)',
+    'JPM': 'JPMorgan Chase (JP모건)', 'V': 'Visa Inc. (비자)', 'COST': 'Costco Wholesale (코스트코)',
+    'XOM': 'Exxon Mobil (엑슨 모빌)', '005380.KS': '현대자동차 (Hyundai Motor)',
+    'NAVER': 'NAVER (네이버)'
+};
+
+
 // ========================================== 
-// 2. 개별 종목 심층 분석 DB (Deep Dive Data)
+// 2. 하드코딩된 심층 분석 DB (Deep Dive Data)
 // ========================================== 
 const mockDataDB = {
     '삼성전자': {
@@ -160,14 +206,16 @@ const mockDataDB = {
 // 동적 데이터 생성 (DB에 없는 범용 종목)
 const getFallbackData = (query) => {
     const uppercaseQuery = query.toUpperCase();
+    const companyName = tickerToName[uppercaseQuery] || `${uppercaseQuery} Corporation`;
+    
     return {
-        name: `${uppercaseQuery} Corporation`,
+        name: companyName,
         ticker: uppercaseQuery,
         rating: 'HOLD',
         targetPrice: 'AI 분석 산출 중',
         currentPrice: '-',
-        comprehensive: `<p><strong>${uppercaseQuery}</strong>에 대한 심층 애널리스트 리포트 데이터 수집 및 분석 프로세스가 진행 중입니다. 현재 시스템은 글로벌 시가총액 상위 대형주 및 트렌드 주도주(AI, 반도체, 헬스케어 등)에 분석 역량이 집중되어 있습니다.</p><p>당사의 1차 AI 퀀트 모델 분석 결과, 동사는 속한 산업군 내에서 안정적인 현금흐름을 창출하고 있으나 최근 매크로 환경(금리, 환율, 원자재) 변화에 따른 마진 압박을 일부 겪고 있는 것으로 추정됩니다. 뚜렷한 실적 개선(Turnaround) 또는 신성장 동력이 가시화되기 전까지는 시장 수익률(Market-weight) 수준의 성과가 예상되므로 <strong>'중립(HOLD)'</strong> 의견을 제시합니다.</p>`,
-        overview: `<ul><li><strong>분석 대상 기업:</strong> ${uppercaseQuery}</li><li>AI가 글로벌 금융 공시 데이터(10-K, 분기보고서 등) 및 최신 뉴스 플로우를 파싱하여 비즈니스 모델을 재구성하고 있습니다.</li><li>경쟁사 대비 핵심 우위 요소 및 지배구조 정보는 추후 딥러닝 모델 업데이트 시 반영될 예정입니다.</li></ul>`,
+        comprehensive: `<p><strong>${companyName}</strong>에 대한 심층 애널리스트 리포트 데이터 수집 및 분석 프로세스가 진행 중입니다. 현재 시스템은 글로벌 시가총액 상위 대형주 및 트렌드 주도주(AI, 반도체, 헬스케어 등)에 분석 역량이 집중되어 있습니다.</p><p>당사의 1차 AI 퀀트 모델 분석 결과, 동사는 속한 산업군 내에서 안정적인 현금흐름을 창출하고 있으나 최근 매크로 환경(금리, 환율, 원자재) 변화에 따른 마진 압박을 일부 겪고 있는 것으로 추정됩니다. 뚜렷한 실적 개선(Turnaround) 또는 신성장 동력이 가시화되기 전까지는 시장 수익률(Market-weight) 수준의 성과가 예상되므로 <strong>'중립(HOLD)'</strong> 의견을 제시합니다.</p>`,
+        overview: `<ul><li><strong>분석 대상 기업:</strong> ${companyName}</li><li>AI가 글로벌 금융 공시 데이터(10-K, 분기보고서 등) 및 최신 뉴스 플로우를 파싱하여 비즈니스 모델을 재구성하고 있습니다.</li><li>경쟁사 대비 핵심 우위 요소 및 지배구조 정보는 추후 딥러닝 모델 업데이트 시 반영될 예정입니다.</li></ul>`,
         financialText: `<p>최근 3개년 주요 재무제표 원본 데이터를 추출 및 정제하는 중입니다. 가치평가(Valuation) 모형 산출을 위한 추정 PER, PBR, ROE 데이터 셋이 준비 중입니다.</p><p>동종 업계 대비 매출 성장률은 평균 수준을 유지하고 있으나, 영업 레버리지 효과를 극대화하기 위한 비용 통제(Cost Control) 여부가 향후 주가 향방의 핵심 키(Key)가 될 것입니다.</p>`,
         financialTable: [
             ['지표', 'T-3', 'T-2', 'T-1', '현재(TTM)'] ,
@@ -178,7 +226,7 @@ const getFallbackData = (query) => {
         financialChartData: [100, 104.2, 109.5, 111.0],
         financialChartLabels: ['T-3', 'T-2', 'T-1', 'TTM'],
         financialChartTitle: '매출 성장 지수 (Base=100)',
-        industry: `<p>${uppercaseQuery}가 속한 산업군은 현재 구조적인 패러다임 변화(디지털 전환, 친환경 규제 강화, 글로벌 공급망 블록화 등)의 한가운데에 놓여 있습니다.</p><p>업종 내 상위 업체로의 점유율 집중(Consolidation) 현상이 가속화되고 있으며, R&D 역량과 자본력을 갖춘 선도 기업 위주로 시장이 재편될 가능성이 높습니다.</p>`,
+        industry: `<p>${companyName}가 속한 산업군은 현재 구조적인 패러다임 변화(디지털 전환, 친환경 규제 강화, 글로벌 공급망 블록화 등)의 한가운데에 놓여 있습니다.</p><p>업종 내 상위 업체로의 점유율 집중(Consolidation) 현상이 가속화되고 있으며, R&D 역량과 자본력을 갖춘 선도 기업 위주로 시장이 재편될 가능성이 높습니다.</p>`,
         momentum: `<p>최근 주가 흐름은 벤치마크(S&P 500 또는 KOSPI) 지수 대비 뚜렷한 초과 수익(Alpha)을 내지 못하고 횡보하는 움직임을 보이고 있습니다. 스마트 머니(외국인/기관)의 연속적인 순매수 유입은 관찰되지 않습니다.</p><p>기술적 분석 상 박스권 하단에 위치하여 하방 경직성은 확보한 것으로 보이나, 단기 저항선을 강하게 뚫어낼 만한 실적 서프라이즈나 촉매제(Catalyst)가 부재한 상황입니다.</p>`,
         riskText: `<p>해당 기업 투자 시 유의해야 할 일반적인 리스크 요인은 다음과 같습니다.</p>`,
         swot: {
@@ -283,7 +331,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         setTimeout(() => {
             // Find matching theme
-            let matchedTheme = themeDB[1]; // Default to AI
+            let matchedTheme = null;
             const lowerQuery = query.toLowerCase();
             
             for (const theme of themeDB) {
@@ -291,6 +339,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     matchedTheme = theme;
                     break;
                 }
+            }
+
+            // 만약 매칭되는 테마가 없다면 사용자의 입력을 바탕으로 동적 포트폴리오 생성
+            if (!matchedTheme) {
+                matchedTheme = {
+                    themeName: `"${query}" 관련 AI 맞춤형 포트폴리오`,
+                    description: '입력하신 상황과 최근 경제 지표, 산업 밸류체인을 다각도로 분석하여, 해당 국면에서 가장 유리한 비즈니스 모델을 가진 8개 종목을 선별했습니다.',
+                    recommendations: generalFallbackRecommendations
+                };
             }
 
             renderRecommendations(matchedTheme);
