@@ -173,7 +173,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const logoHome = document.getElementById('logo-home');
     const homeView = document.getElementById('home-view');
     const reportContainer = document.getElementById('report-container');
-    const emptyState = document.getElementById('empty-state'); // May be null if removed, check carefully
+    // const emptyState = document.getElementById('empty-state'); Removed since it's no longer in index.html
     
     // Top bar search
     const topStockInput = document.getElementById('stock-input');
